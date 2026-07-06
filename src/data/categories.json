@@ -1,0 +1,7 @@
+[
+  { "id": "npk", "name": "Phân bón NPK", "description": "Phân hỗn hợp đa lượng Đạm - Lân - Kali" },
+  { "id": "huu-co", "name": "Phân hữu cơ vi sinh", "description": "Cải tạo đất, bổ sung vi sinh vật có lợi" },
+  { "id": "phan-bon-la", "name": "Phân bón lá", "description": "Bổ sung dinh dưỡng qua lá, hấp thu nhanh" },
+  { "id": "phan-bon-re", "name": "Phân bón rễ", "description": "Kích rễ, cải tạo đất, tăng khả năng hấp thu dinh dưỡng" },
+  { "id": "trun-que", "name": "Phân trùn quế", "description": "Hữu cơ tự nhiên 100%, an toàn cho cây trồng" }
+]

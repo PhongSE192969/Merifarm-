@@ -1,0 +1,8 @@
+[
+  { "id": "bao-50kg", "name": "Bao 50kg" },
+  { "id": "bao-25kg", "name": "Bao 25kg" },
+  { "id": "chai", "name": "Chai" },
+  { "id": "hat", "name": "Dạng hạt" },
+  { "id": "bot", "name": "Dạng bột" },
+  { "id": "nuoc", "name": "Dạng nước" }
+]

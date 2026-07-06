@@ -1,0 +1,8 @@
+[
+  { "id": "lua", "name": "Lúa" },
+  { "id": "rau-mau", "name": "Rau màu" },
+  { "id": "cay-an-trai", "name": "Cây ăn trái" },
+  { "id": "hoa-kieng", "name": "Hoa kiểng" },
+  { "id": "cay-cong-nghiep", "name": "Cây công nghiệp" },
+  { "id": "cay-trong-chau", "name": "Cây trồng trong chậu" }
+]
