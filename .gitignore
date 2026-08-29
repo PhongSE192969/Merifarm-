@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Non-project reference material (not part of the website)
+/Skills/
+/ui-ux-pro-max-skill-main/
+/Ảnh sản phẩm tách nền/
+/Ảnh website/

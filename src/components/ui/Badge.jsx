@@ -1,7 +1,7 @@
 const TAG_LABELS = {
-  'ban-chay': { label: 'Bán chạy', className: 'bg-accent text-white' },
-  moi: { label: 'Mới', className: 'bg-primary text-white' },
-  'khuyen-mai': { label: 'Khuyến mãi', className: 'bg-earth text-white' },
+  'ban-chay': { label: 'Bán chạy', className: 'bg-white border border-accent-dark text-accent-dark' },
+  moi: { label: 'Mới', className: 'bg-white border border-primary text-primary' },
+  'khuyen-mai': { label: 'Khuyến mãi', className: 'bg-white border border-earth text-earth' },
 }
 
 export default function Badge({ tag }) {

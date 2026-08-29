@@ -7,6 +7,7 @@ import ProductsPage from './pages/ProductsPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import CartPage from './pages/CartPage'
 import ContactPage from './pages/ContactPage'
+import KnowledgePage from './pages/KnowledgePage'
 import HuongDanMuaHangPage from './pages/policy/HuongDanMuaHangPage'
 import ChinhSachThanhToanPage from './pages/policy/ChinhSachThanhToanPage'
 import ChinhSachGiaoHangPage from './pages/policy/ChinhSachGiaoHangPage'
@@ -24,6 +25,7 @@ function App() {
         <Route path="/gioi-thieu" element={<AboutPage />} />
         <Route path="/san-pham" element={<ProductsPage />} />
         <Route path="/san-pham/:slug" element={<ProductDetailPage />} />
+        <Route path="/kien-thuc-nha-nong" element={<KnowledgePage />} />
         <Route path="/gio-hang" element={<CartPage />} />
         <Route path="/lien-he" element={<ContactPage />} />
         <Route path="/dat-hang-thanh-cong" element={<OrderSuccessPage />} />

@@ -1,13 +1,26 @@
-﻿import { Link } from 'react-router-dom'
-import {
-  Leaf, Sprout, ShieldCheck, Truck, Headset, HeartHandshake,
-  Store, Building2, Home, ArrowRight, CheckCircle2,
-  Target, Eye, Heart, Tag, Handshake, FlaskConical, Flower2,
-  ClipboardList, Lightbulb, ClipboardCheck, PackageCheck,
+﻿import {
+  Sprout, Store, Building2, Home,
+  Target, Eye, Heart, Handshake,
 } from 'lucide-react'
-import Button from '../components/ui/Button'
 import SectionHeading from '../components/ui/SectionHeading'
 import Reveal from '../components/ui/Reveal'
+
+function LeafSprig({ className = '', flip = false }) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className={`${flip ? 'scale-x-[-1]' : ''} ${className}`}
+    >
+      <path d="M10,90 Q35,60 55,35 Q70,15 90,10" strokeLinecap="round" />
+      <path d="M30,68 Q40,50 60,48 Q75,47 82,35" fill="currentColor" opacity="0.5" />
+      <path d="M45,50 Q55,32 76,28 Q90,26 95,15" fill="currentColor" opacity="0.5" />
+      <path d="M58,32 Q66,18 85,15" fill="currentColor" opacity="0.5" />
+    </svg>
+  )
+}
 
 const MVV = [
   {
@@ -63,164 +76,152 @@ const AUDIENCES = [
   },
 ]
 
-const PRODUCTS_CAT = [
-  {
-    icon: FlaskConical,
-    id: 'npk',
-    title: 'Phân bón NPK',
-    image: 'https://images.unsplash.com/photo-1757670919588-1fe3b3df3dfa?w=600&q=80&auto=format&fit=crop',
-    text: 'Bổ sung dinh dưỡng đa lượng, hỗ trợ cây phát triển cân đối.',
-  },
-  {
-    icon: Sprout,
-    id: 'huu-co',
-    title: 'Phân hữu cơ vi sinh',
-    image: 'https://images.unsplash.com/photo-1492496913980-501348b61469?w=600&q=80&auto=format&fit=crop',
-    text: 'Góp phần cải tạo đất, tăng hệ vi sinh có lợi và hỗ trợ canh tác bền vững.',
-  },
-  {
-    icon: Flower2,
-    id: 'phan-bon-la',
-    title: 'Phân bón lá',
-    image: 'https://images.unsplash.com/photo-1589876568181-a1508b8ef473?w=600&q=80&auto=format&fit=crop',
-    text: 'Hỗ trợ bổ sung dinh dưỡng nhanh qua lá, phù hợp trong nhiều giai đoạn sinh trưởng.',
-  },
-  {
-    icon: Leaf,
-    id: 'phan-bon-re',
-    title: 'Phân bón rễ',
-    image: 'https://images.unsplash.com/photo-1621256257758-276a90549f80?w=600&q=80&auto=format&fit=crop',
-    text: 'Hỗ trợ bộ rễ khỏe, tăng khả năng hấp thu dinh dưỡng và phục hồi cây.',
-  },
-  {
-    icon: HeartHandshake,
-    id: 'trun-que',
-    title: 'Phân trùn quế',
-    image: 'https://images.unsplash.com/photo-1708191225887-0642eb28f6ac?w=600&q=80&auto=format&fit=crop',
-    text: 'Giải pháp hữu cơ thân thiện, phù hợp cải tạo đất và chăm sóc cây trồng.',
-  },
-]
-
 const COMMITMENTS = [
   {
-    icon: ShieldCheck,
-    title: 'Sản phẩm rõ nguồn gốc',
-    text: 'Thông tin sản phẩm, quy cách và công dụng được trình bày minh bạch.',
+    number: '01',
+    title: 'Chất lượng rõ ràng',
+    text: 'Sản phẩm chất lượng cao, hiệu quả được kiểm chứng.',
+    pos: 'top',
+    left: 8,
   },
   {
-    icon: Headset,
-    title: 'Tư vấn đúng nhu cầu',
-    text: 'Hỗ trợ lựa chọn sản phẩm theo loại cây, tình trạng cây và giai đoạn canh tác.',
+    number: '02',
+    title: 'Thông tin minh bạch',
+    text: 'Cung cấp đầy đủ, rõ ràng, không làm sai lệch.',
+    pos: 'top',
+    left: 27,
   },
   {
-    icon: Tag,
-    title: 'Giá bán minh bạch',
-    text: 'Thông tin giá rõ ràng, phù hợp cho cả khách lẻ và nhu cầu đại lý.',
+    number: '03',
+    title: 'Tư vấn phù hợp',
+    text: 'Hiểu đúng cây trồng, đất đai để tư vấn đúng giải pháp.',
+    pos: 'bottom',
+    left: 41,
   },
   {
-    icon: Truck,
-    title: 'Giao hàng linh hoạt',
-    text: 'Hỗ trợ giao hàng theo đơn, theo khu vực và nhu cầu thực tế.',
+    number: '04',
+    title: 'Đồng hành thực tế',
+    text: 'Luôn có mặt khi bà con cần, hỗ trợ tận nơi.',
+    pos: 'bottom',
+    left: 59,
   },
   {
-    icon: HeartHandshake,
-    title: 'Đồng hành sau mua',
-    text: 'Hỗ trợ hướng dẫn sử dụng và giải đáp trong quá trình chăm sóc cây trồng.',
+    number: '05',
+    title: 'Giao hàng cẩn thận',
+    text: 'Đúng hẹn, đúng sản phẩm, đóng gói kỹ lưỡng.',
+    pos: 'top',
+    left: 76,
   },
   {
-    icon: Handshake,
-    title: 'Hợp tác đại lý rõ ràng',
-    text: 'Mở rộng cơ hội hợp tác cho cửa hàng vật tư nông nghiệp và đơn vị phân phối.',
+    number: '06',
+    title: 'Hợp tác lâu dài',
+    text: 'Xây dựng mối quan hệ bền vững, cùng phát triển.',
+    pos: 'bottom',
+    left: 92,
   },
 ]
 
-const STEPS = [
+const VALUE_CARDS = [
   {
-    icon: ClipboardList,
-    title: 'Gửi thông tin cây trồng',
-    text: 'Chia sẻ loại cây, diện tích, tình trạng vườn hoặc nhu cầu sử dụng.',
+    number: '01',
+    label: 'Kiểm soát chất lượng',
+    image: '/about-kiem-tra-chat-luong.png',
   },
   {
-    icon: Lightbulb,
-    title: 'Nhận tư vấn sản phẩm',
-    text: 'Merifarm gợi ý dòng phân bón phù hợp với mục tiêu chăm sóc cây.',
+    number: '02',
+    label: 'Hiểu đúng nhu cầu',
+    image: '/process-step2-tuvan.png',
   },
   {
-    icon: ClipboardCheck,
-    title: 'Xác nhận đơn hàng',
-    text: 'Kiểm tra số lượng, quy cách, giá bán và thông tin giao hàng.',
-  },
-  {
-    icon: PackageCheck,
-    title: 'Giao hàng & hỗ trợ',
-    text: 'Theo dõi quá trình sử dụng và hỗ trợ thêm khi khách hàng cần.',
+    number: '03',
+    label: 'Đồng hành xuyên suốt',
+    image: '/about-dong-hanh.png',
+    focus: '72% 58%',
   },
 ]
-
-const DEALER_BENEFITS = [
-  'Danh mục sản phẩm đa dạng',
-  'Chính sách hợp tác rõ ràng',
-  'Hỗ trợ tư vấn kỹ thuật',
-  'Đồng hành phát triển thị trường',
-]
-
-const TRUST_BADGES = ['Phân bón chất lượng', 'Tư vấn tận tâm', 'Giao hàng linh hoạt']
 
 export default function AboutPage() {
   return (
     <>
-      {/* ── 1. HERO ── */}
+      {/* ── 1. HERO — full-bleed photo banner, header floats on top ── */}
       <section
-        className="relative bg-fixed bg-cover bg-center py-16 md:py-36"
+        className="relative flex min-h-[560px] items-center overflow-hidden bg-cover bg-center py-28 md:min-h-[640px] md:py-36"
         style={{
           backgroundImage:
-            'url(https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1600&q=80&auto=format&fit=crop)',
+            "url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1600&q=80&auto=format&fit=crop')",
         }}
       >
-        <div className="absolute inset-0 bg-black/70" />
-        <div className="relative mx-auto max-w-6xl px-4">
+        <div className="pointer-events-none absolute inset-0 bg-black/55" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/30" />
+
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 text-center">
           <Reveal>
-            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-accent-light">
-              VỀ MERIFARM
-            </p>
-            <h1 className="max-w-3xl text-4xl font-extrabold leading-tight text-white md:text-5xl">
-              Đồng hành cùng nhà nông trong từng mùa vụ
-            </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/80">
-              Merifarm là thương hiệu phân bón thuộc{' '}
-              <span className="font-semibold text-white">
-                CÔNG TY TRÁCH NHIỆM HỮU HẠN PHÁT TRIỂN KỸ THUẬT TÂM PHÚC
-              </span>
-              , cung cấp các sản phẩm phân bón chất lượng và giải pháp dinh dưỡng phù hợp cho
-              cây trồng, nông hộ, nhà vườn, đại lý và cửa hàng vật tư nông nghiệp.
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/20 pt-5">
-              {TRUST_BADGES.map((b) => (
-                <div key={b} className="flex items-center gap-1.5 text-sm text-white/80">
-                  <CheckCircle2 size={15} className="shrink-0 text-accent-light" />
-                  {b}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button as={Link} to="/san-pham" variant="accent">
-                Xem sản phẩm <ArrowRight size={18} />
-              </Button>
-              <Link
-                to="/lien-he"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white px-6 py-3 font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-primary-dark active:translate-y-0"
-              >
-                Liên hệ tư vấn
-              </Link>
+            <div className="mx-auto max-w-2xl">
+              <p className="mb-4 text-base font-bold uppercase tracking-widest text-accent-light">
+                Về Merifarm
+              </p>
+              <h1 className="text-4xl font-extrabold leading-tight text-white drop-shadow-md md:text-5xl">
+                Đồng hành cùng nhà nông
+                <br /> qua từng mùa vụ
+              </h1>
+              <p className="mx-auto mt-5 whitespace-nowrap text-lg leading-relaxed text-white/85">
+                Giải pháp dinh dưỡng phù hợp, gắn với nhu cầu thực tế của từng vườn cây
+              </p>
             </div>
           </Reveal>
         </div>
       </section>
 
+      {/* ── 1b. VALUES — text + bento image cards ── */}
+      <section className="py-16 md:py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid items-center gap-10 md:grid-cols-2 md:gap-12">
+            <Reveal>
+              <div className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-accent-dark">
+                <span className="h-0.5 w-6 bg-accent-dark" /> Giá trị Merifarm theo đuổi
+              </div>
+              <h2 className="text-3xl font-extrabold leading-tight text-primary-dark md:text-4xl">
+                Từ chất lượng sản phẩm
+                <br /> đến hiệu quả canh tác
+              </h2>
+              <p className="mt-5 max-w-md leading-relaxed text-secondary">
+                Mỗi giải pháp được xây dựng từ nhu cầu thực tế, quy trình kiểm soát và sự đồng
+                hành trong suốt mùa vụ.
+              </p>
+            </Reveal>
+
+            <Reveal delay={120}>
+              <div className="grid h-[380px] grid-cols-2 grid-rows-2 gap-4 sm:h-[420px]">
+                {VALUE_CARDS.map((card, i) => (
+                  <div
+                    key={card.number}
+                    className={`group relative overflow-hidden rounded-2xl shadow-soft ${
+                      i === 0 ? 'row-span-2' : ''
+                    }`}
+                  >
+                    <img
+                      src={card.image}
+                      alt={card.label}
+                      style={card.focus ? { objectPosition: card.focus } : undefined}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/85 via-primary-dark/10 to-transparent" />
+                    <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 overflow-hidden rounded-xl border border-white/35 bg-white/10 px-3 py-2 text-sm font-semibold text-white shadow-[0_4px_20px_rgba(0,0,0,0.25)] backdrop-blur-xl [text-shadow:0_1px_3px_rgba(0,0,0,0.4)]">
+                      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent" />
+                      <span className="relative text-accent-light">{card.number}</span>
+                      <span className="relative h-3.5 w-px bg-white/40" />
+                      <span className="relative">{card.label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
       {/* ── 2. BRAND STORY ── */}
-      <section className="py-16">
+      <section id="cau-chuyen" className="py-16">
         <div className="mx-auto max-w-6xl px-4">
           <Reveal>
             <SectionHeading
@@ -261,7 +262,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── 3. MISSION / VISION / VALUES — image-strip cards ── */}
-      <section className="bg-soft-green py-16">
+      <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4">
           <Reveal>
             <SectionHeading
@@ -339,82 +340,90 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── 5. PRODUCT STRENGTH — photo-top cards ── */}
-      <section className="bg-soft-green py-16">
-        <div className="mx-auto max-w-6xl px-4">
+      {/* ── 6. COMMITMENTS — wave timeline with blob photo ── */}
+      <section className="relative overflow-hidden py-16 md:py-24">
+        <LeafSprig className="pointer-events-none absolute -right-6 top-6 hidden h-28 w-28 text-primary/15 lg:block" />
+
+        <div className="mx-auto max-w-7xl px-4">
           <Reveal>
-            <SectionHeading
-              eyebrow="SẢN PHẨM CHỦ LỰC"
-              title="Danh mục phân bón Merifarm cung cấp"
-              description="Từ phân bón NPK, hữu cơ vi sinh đến phân bón lá và phân bón rễ, Merifarm mang đến nhiều lựa chọn phù hợp cho từng nhu cầu canh tác."
-              center
-            />
+            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
+              Niềm tin từ những điều thật
+            </p>
+            <h2 className="max-w-2xl text-4xl font-extrabold leading-tight text-ink md:text-5xl">
+              Cam kết của Merifarm
+            </h2>
+            <p className="mt-4 max-w-2xl leading-relaxed text-secondary">
+              Merifarm cam kết mang đến giải pháp dinh dưỡng cây trồng hiệu quả, minh bạch và bền
+              vững từ chất lượng đến đồng hành.
+            </p>
           </Reveal>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
-            {PRODUCTS_CAT.map((item, i) => (
-              <Reveal key={item.id} delay={i * 80}>
-                <Link
-                  to={`/san-pham?category=${item.id}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-card border border-soft bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-md"
-                >
-                  {/* Photo */}
-                  <div className="relative h-28 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-primary-dark/35" />
-                    <div className="absolute bottom-2 left-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-white ring-1 ring-white/30 backdrop-blur-sm transition-colors duration-300 group-hover:bg-accent group-hover:ring-accent">
-                      <item.icon size={17} />
-                    </div>
-                  </div>
-                  {/* Content */}
-                  <div className="flex flex-1 flex-col p-4">
-                    <h3 className="font-semibold text-ink">{item.title}</h3>
-                    <p className="mt-1.5 flex-1 text-xs leading-relaxed text-secondary">{item.text}</p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary transition-colors duration-200 group-hover:text-accent-dark">
-                      Xem sản phẩm <ArrowRight size={12} />
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
+
+          {/* Desktop: wave timeline */}
+          <div className="relative mt-28 hidden h-[280px] lg:block">
+            <svg
+              viewBox="0 0 1200 100"
+              preserveAspectRatio="none"
+              className="absolute inset-x-0 top-1/2 h-28 w-full -translate-y-1/2"
+            >
+              <defs>
+                <linearGradient id="commitWave" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#0F6B34" stopOpacity="0.15" />
+                  <stop offset="50%" stopColor="#0F6B34" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#0F6B34" stopOpacity="0.15" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M-30,48 C20,18 65,14 96,26 C170,50 250,6 324,26
+                   C400,46 445,68 492,78 C560,88 640,88 708,78
+                   C775,68 850,36 912,26 C978,14 1040,44 1104,72
+                   C1150,90 1185,60 1230,50"
+                fill="none"
+                stroke="url(#commitWave)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            <LeafSprig className="pointer-events-none absolute -left-8 bottom-6 h-14 w-14 text-primary/40" />
+            <LeafSprig flip className="pointer-events-none absolute -right-8 bottom-2 h-14 w-14 text-primary/40" />
+
+            {COMMITMENTS.map((item) => (
+              <span
+                key={item.number}
+                className="absolute z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ring-4 ring-white"
+                style={{ left: `${item.left}%`, top: item.pos === 'top' ? '31%' : '69%' }}
+              />
             ))}
-          </div>
-          <Reveal className="mt-10 text-center" delay={200}>
-            <Button as={Link} to="/san-pham" variant="accent">
-              Xem tất cả sản phẩm <ArrowRight size={18} />
-            </Button>
-          </Reveal>
-        </div>
-      </section>
 
-      {/* ── 6. COMMITMENTS — subtle field background ── */}
-      <section className="relative py-16">
-        {/* Very light field background */}
-        <img
-          src="https://images.unsplash.com/photo-1495107334309-fcf20504a5ab?w=1600&q=80&auto=format&fit=crop"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-white/93" />
-
-        <div className="relative mx-auto max-w-6xl px-4">
-          <Reveal>
-            <SectionHeading eyebrow="CAM KẾT" title="Cam kết của Merifarm" center />
-          </Reveal>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {COMMITMENTS.map((item, i) => (
-              <Reveal key={item.title} delay={i * 70}>
-                <div className="flex h-full items-start gap-4 rounded-card border border-soft bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gold-soft text-accent-dark">
-                    <item.icon size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-ink">{item.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-secondary">{item.text}</p>
-                  </div>
+              <div
+                key={item.number}
+                className={`absolute z-10 -translate-x-1/2 text-center ${
+                  item.pos === 'top' ? 'bottom-[73%]' : 'top-[73%]'
+                }`}
+                style={{ left: `${item.left}%` }}
+              >
+                <Reveal delay={i * 80} className="relative">
+                  <span
+                    className="absolute left-1/2 h-[22px] w-px -translate-x-1/2 border-l border-dashed border-primary/40"
+                    style={item.pos === 'top' ? { bottom: '-22px' } : { top: '-22px' }}
+                  />
+                  <span className="text-3xl font-extrabold text-accent">{item.number}</span>
+                  <h3 className="mt-1 whitespace-nowrap font-bold text-ink">{item.title}</h3>
+                  <p className="mx-auto mt-1 w-36 text-xs leading-relaxed text-secondary">{item.text}</p>
+                </Reveal>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile / tablet: simple grid fallback */}
+          <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:hidden">
+            {COMMITMENTS.map((item, i) => (
+              <Reveal key={item.number} delay={i * 70}>
+                <div className="text-center sm:text-left">
+                  <span className="text-2xl font-extrabold text-accent">{item.number}</span>
+                  <h3 className="mt-1 font-bold text-ink">{item.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-secondary">{item.text}</p>
                 </div>
               </Reveal>
             ))}
@@ -422,131 +431,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── 7. PROCESS — with step-connecting line ── */}
-      <section className="bg-soft-green py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <SectionHeading eyebrow="QUY TRÌNH" title="Quy trình tư vấn và mua hàng" center />
-          </Reveal>
-
-          <div className="relative">
-            {/* Connecting line (desktop only) */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-[44px] hidden h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent lg:block"
-            />
-
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {STEPS.map((step, i) => (
-                <Reveal key={step.title} delay={i * 80}>
-                  <div className="relative z-10 h-full rounded-card border border-white/60 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                    {/* Gold step number */}
-                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent text-sm font-bold text-white shadow-sm">
-                      {i + 1}
-                    </div>
-                    {/* Icon on soft green */}
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-soft-green text-primary">
-                      <step.icon size={22} />
-                    </div>
-                    <h3 className="font-semibold text-ink">{step.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-secondary">{step.text}</p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 8. DEALER PARTNERSHIP ── */}
-      <section className="py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <div className="grid overflow-hidden rounded-card bg-primary-dark md:grid-cols-2">
-              {/* Left: content */}
-              <div className="p-8 text-white md:p-10">
-                <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-accent-light">
-                  HỢP TÁC
-                </p>
-                <h2 className="text-2xl font-bold md:text-3xl">Hợp tác cùng Merifarm</h2>
-                <p className="mt-4 leading-relaxed text-white/80">
-                  Merifarm chào đón cửa hàng vật tư nông nghiệp, đại lý phân bón và đơn vị phân
-                  phối mong muốn phát triển danh mục sản phẩm chất lượng, dễ tư vấn và phù hợp
-                  với nhu cầu canh tác thực tế.
-                </p>
-                <ul className="mt-5 space-y-3">
-                  {DEALER_BENEFITS.map((b) => (
-                    <li key={b} className="flex items-center gap-2.5 text-sm text-white/90">
-                      <CheckCircle2 size={16} className="shrink-0 text-accent-light" />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-7">
-                  <Button as={Link} to="/lien-he" variant="accent">
-                    Liên hệ hợp tác đại lý <ArrowRight size={18} />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Right: image */}
-              <div className="relative hidden min-h-[300px] md:block">
-                <img
-                  src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=900&q=80&auto=format&fit=crop"
-                  alt="Hợp tác đại lý Merifarm"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ── 9. FINAL CTA — field image background ── */}
-      <section className="relative py-20 text-white">
-        <img
-          src="https://images.unsplash.com/photo-1609412058473-c199497c3c5d?w=1600&q=80&auto=format&fit=crop"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-primary-dark/88" />
-
-        <div className="relative mx-auto max-w-6xl px-4">
-          <Reveal>
-            <div className="flex flex-col items-center gap-8 text-center md:flex-row md:justify-between md:text-left">
-              <div className="md:max-w-xl">
-                <div className="mb-3 flex items-center justify-center gap-2 text-accent-light md:justify-start">
-                  <Leaf size={20} />
-                  <span className="text-sm font-semibold uppercase tracking-wide">
-                    Tư vấn miễn phí
-                  </span>
-                </div>
-                <h2 className="text-2xl font-bold md:text-3xl">
-                  Bạn cần tư vấn sản phẩm phù hợp cho cây trồng?
-                </h2>
-                <p className="mt-3 text-white/80">
-                  Gửi thông tin về loại cây, tình trạng vườn hoặc nhu cầu sử dụng. Merifarm sẽ
-                  hỗ trợ bạn lựa chọn sản phẩm phù hợp.
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-wrap justify-center gap-3 md:justify-start">
-                <Button as={Link} to="/lien-he" variant="accent">
-                  Liên hệ tư vấn <ArrowRight size={18} />
-                </Button>
-                <Button
-                  as={Link}
-                  to="/san-pham"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-primary-dark"
-                >
-                  Xem sản phẩm
-                </Button>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
     </>
   )
 }

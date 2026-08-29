@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import {
   Minus, Plus, Trash2, ShoppingBag, ChevronRight, Truck, Store, PhoneCall,
   CreditCard, Banknote, UserCheck, AlertCircle, Package, MapPin, CheckSquare,
-  ChevronDown, Search, X, PenLine,
+  ChevronDown, Search, X, PenLine, CheckCircle2, Copy, Loader2,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { useCartStore } from '../store/cartStore'
@@ -11,6 +11,45 @@ import { formatPrice } from '../utils/format'
 import { VIETNAM_PROVINCES_2025, getWardOptionsByProvince } from '../data/vietnam-address-2025'
 
 const ESTIMATED_SHIPPING = 30000
+
+const COUPONS = {
+  QUOCANH: { type: 'fixed', value: 50000 },
+  DUYPHONG: { type: 'fixed', value: 50000 },
+  MERIFARM: { type: 'percent', value: 5 },
+}
+
+const DELIVERY_OPTIONS = [
+  {
+    value: 'delivery', icon: Truck, label: 'Giao hàng tận nơi',
+    sublabel: 'Merifarm sẽ xác nhận phí vận chuyển theo địa chỉ thực tế.',
+  },
+  {
+    value: 'pickup', icon: Store, label: 'Nhận tại kho / cửa hàng',
+    sublabel: 'Số 5-7, Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh.',
+  },
+  {
+    value: 'consult', icon: PhoneCall, label: 'Cần Merifarm tư vấn trước khi giao',
+    sublabel: 'Nhân viên sẽ liên hệ tư vấn và thống nhất lịch giao hàng.',
+  },
+]
+
+const BANK_INFO = {
+  company: 'CÔNG TY TNHH CÔNG NGHỆ DVP-DEDITECH',
+  bank: 'Vietcombank – CN TP. Hồ Chí Minh',
+  accountNumber: '0071000123456',
+  accountHolder: 'CONG TY TNHH CONG NGHE DVP-DEDITECH',
+}
+
+const PAYMENT_OPTIONS = [
+  {
+    value: 'cod', icon: CreditCard, label: 'Thanh toán khi nhận hàng (COD)',
+    sublabel: 'Trả tiền mặt hoặc chuyển khoản khi nhận được hàng.',
+  },
+  {
+    value: 'transfer', icon: Banknote, label: 'Thanh Toán Trực tuyến (Ngân hàng/MoMo)',
+    sublabel: 'Thanh toán trực tuyến',
+  },
+]
 
 // ─── Inline sub-components ───────────────────────────────────────────────────
 
@@ -36,29 +75,6 @@ function inputCls(error) {
   return `w-full rounded-xl border px-3.5 py-2.5 text-sm text-ink outline-none transition-colors duration-150
     ${error ? 'border-red-400 focus:border-red-500' : 'border-soft focus:border-primary'}
     placeholder:text-faint disabled:bg-[#F3F3F3] disabled:cursor-not-allowed`
-}
-
-function RadioCard({ value, current, onChange, icon: Icon, label, sublabel }) {
-  const checked = value === current
-  return (
-    <label
-      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-all duration-150
-        ${checked ? 'border-primary bg-soft-green' : 'border-soft bg-white hover:border-primary/40'}`}
-    >
-      <input type="radio" className="sr-only" value={value} checked={checked} onChange={() => onChange(value)} />
-      <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors
-        ${checked ? 'border-primary bg-primary' : 'border-soft'}`}>
-        {checked && <span className="h-2 w-2 rounded-full bg-white" />}
-      </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          {Icon && <Icon size={15} className={checked ? 'text-primary' : 'text-faint'} />}
-          <span className={`text-sm font-semibold ${checked ? 'text-primary-dark' : 'text-ink'}`}>{label}</span>
-        </div>
-        {sublabel && <p className="mt-0.5 text-xs text-secondary">{sublabel}</p>}
-      </div>
-    </label>
-  )
 }
 
 // ─── SearchableSelect ────────────────────────────────────────────────────────
@@ -172,7 +188,7 @@ function SearchableSelect({ options, value, onChange, placeholder, disabled, err
                   onMouseDown={(e) => { e.preventDefault(); onChange(opt); setOpen(false); setQuery('') }}
                   className={`flex cursor-pointer items-center px-4 py-2.5 text-sm transition-colors
                     ${value === opt
-                      ? 'bg-soft-green font-semibold text-primary-dark'
+                      ? 'bg-white font-semibold text-primary-dark'
                       : 'text-ink hover:bg-[#F8F5F0]'}`}
                 >
                   {value === opt && <span className="mr-2 text-primary">✓</span>}
@@ -206,6 +222,79 @@ function SearchableSelect({ options, value, onChange, placeholder, disabled, err
   )
 }
 
+// ─── OptionPicker ────────────────────────────────────────────────────────────
+// Compact select-style trigger that expands into a list of icon/label/sublabel
+// options (used for delivery method & payment method, instead of a full stacked
+// radio-card list).
+
+function OptionPicker({ options, value, onChange, placeholder, error }) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef(null)
+  const selected = options.find((o) => o.value === value)
+
+  useEffect(() => {
+    if (!open) return
+    function close(e) {
+      if (!containerRef.current?.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', close)
+    return () => document.removeEventListener('mousedown', close)
+  }, [open])
+
+  const borderCls = error
+    ? 'border-red-400 focus-within:border-red-500'
+    : 'border-soft focus-within:border-primary'
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-colors duration-150 bg-white hover:border-primary/60 ${borderCls}`}
+      >
+        {selected?.icon && <selected.icon size={16} className="shrink-0 text-primary" />}
+        <span className={`flex-1 truncate text-sm font-medium ${selected ? 'text-ink' : 'text-faint font-normal'}`}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <ChevronDown
+          size={15}
+          className={`shrink-0 text-faint transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {selected?.sublabel && !open && (
+        <p className="mt-1.5 text-xs text-secondary">{selected.sublabel}</p>
+      )}
+
+      {open && (
+        <div className="absolute z-30 mt-1.5 w-full overflow-hidden rounded-xl border border-soft bg-white shadow-lg">
+          {options.map((opt) => {
+            const checked = opt.value === value
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false) }}
+                className={`flex w-full items-start gap-3 border-b border-soft px-4 py-3 text-left transition-colors last:border-b-0
+                  ${checked ? 'bg-soft-green/50' : 'hover:bg-[#F8F5F0]'}`}
+              >
+                {opt.icon && (
+                  <opt.icon size={16} className={`mt-0.5 shrink-0 ${checked ? 'text-primary' : 'text-faint'}`} />
+                )}
+                <div className="flex-1">
+                  <p className={`text-sm font-semibold ${checked ? 'text-primary-dark' : 'text-ink'}`}>{opt.label}</p>
+                  {opt.sublabel && <p className="mt-0.5 text-xs text-secondary">{opt.sublabel}</p>}
+                </div>
+                {checked && <span className="mt-0.5 shrink-0 text-primary">✓</span>}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function CartPage() {
@@ -223,15 +312,55 @@ export default function CartPage() {
     deliveryMethod: 'delivery',
     street: '', province: '', ward: '', country: 'Việt Nam',
     paymentMethod: '',
+    couponCode: '',
+    eInvoice: false,
+    invoiceType: 'company',
+    invoiceName: '', invoiceAddress: '', invoiceTaxCode: '', invoiceEmail: '',
     note: '',
   })
   const [errors, setErrors] = useState({})
+  const [invoiceErrors, setInvoiceErrors] = useState({})
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false)
+  const [coupon, setCoupon] = useState(null)
+  const [couponError, setCouponError] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [showTransferModal, setShowTransferModal] = useState(false)
+  const [transferStatus, setTransferStatus] = useState('idle') // idle | checking | success
   const formRef = useRef(null)
+  const pollAttemptsRef = useRef(0)
+
+  // Demo-only stand-in for the backend payment webhook/poll endpoint — remove
+  // once real payment gateway integration is wired up.
+  async function pollTransferPaymentStatus() {
+    pollAttemptsRef.current += 1
+    return pollAttemptsRef.current >= 3
+  }
 
   const shipping = items.length === 0 ? 0 : ESTIMATED_SHIPPING
-  const estimated = totalPrice + shipping
+  const discount = coupon
+    ? (coupon.type === 'fixed' ? coupon.value : Math.round((totalPrice * coupon.value) / 100))
+    : 0
+  const estimated = Math.max(totalPrice + shipping - discount, 0)
+
+  function applyCoupon() {
+    const code = form.couponCode.trim().toUpperCase()
+    const found = COUPONS[code]
+    if (!found) {
+      setCoupon(null)
+      setCouponError('Mã ưu đãi không hợp lệ.')
+      return
+    }
+    setCoupon({ code, ...found })
+    setCouponError('')
+    setFormField('couponCode', code)
+  }
+
+  function removeCoupon() {
+    setCoupon(null)
+    setCouponError('')
+    setFormField('couponCode', '')
+  }
 
   const provinceOptions = VIETNAM_PROVINCES_2025
   const availableWards = form.province ? getWardOptionsByProvince(form.province) : []
@@ -261,6 +390,36 @@ export default function CartPage() {
     if (errors[name]) setErrors((e) => ({ ...e, [name]: undefined }))
   }
 
+  function validateInvoiceFields() {
+    const e = {}
+    if (!form.invoiceName.trim()) {
+      e.invoiceName = form.invoiceType === 'company' ? 'Vui lòng nhập tên công ty.' : 'Vui lòng nhập tên đầy đủ.'
+    }
+    if (!form.invoiceAddress.trim()) e.invoiceAddress = 'Vui lòng nhập địa chỉ.'
+    if (!form.invoiceTaxCode.trim()) {
+      e.invoiceTaxCode = form.invoiceType === 'company' ? 'Vui lòng nhập mã số thuế.' : 'Vui lòng nhập mã số thuế / căn cước công dân.'
+    }
+    if (!form.invoiceEmail.trim()) e.invoiceEmail = 'Vui lòng nhập email nhận hóa đơn.'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.invoiceEmail.trim())) e.invoiceEmail = 'Email không hợp lệ.'
+    return e
+  }
+
+  function confirmInvoice() {
+    const errs = validateInvoiceFields()
+    if (Object.keys(errs).length > 0) {
+      setInvoiceErrors(errs)
+      return
+    }
+    setFormField('eInvoice', true)
+    setInvoiceErrors({})
+    setShowInvoiceModal(false)
+  }
+
+  function cancelInvoice() {
+    setInvoiceErrors({})
+    setShowInvoiceModal(false)
+  }
+
   function validate() {
     const e = {}
     if (!form.name.trim()) e.name = 'Vui lòng nhập họ và tên.'
@@ -273,6 +432,7 @@ export default function CartPage() {
       if (!form.province) e.province = 'Vui lòng chọn Tỉnh / Thành phố.'
       if (!form.ward && availableWards.length > 0) e.ward = 'Vui lòng chọn Phường / Xã / Đặc khu.'
     }
+    if (form.eInvoice) Object.assign(e, validateInvoiceFields())
     return e
   }
 
@@ -282,6 +442,21 @@ export default function CartPage() {
       removeItem(id)
       setRemoving(null)
     }, 280)
+  }
+
+  function buildOrderData() {
+    const orderCode = `MF-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, '0')}`
+    return {
+      code: orderCode,
+      items: items.map((i) => ({ ...i })),
+      form: { ...form, provinceName: form.province },
+      subtotal: totalPrice,
+      shipping,
+      coupon: coupon ? { code: coupon.code, discount } : null,
+      total: estimated,
+      hasQuotePending,
+      submittedAt: new Date().toISOString(),
+    }
   }
 
   function handleSubmit(e) {
@@ -295,18 +470,7 @@ export default function CartPage() {
     }
 
     setSubmitting(true)
-    const orderCode = `MF-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, '0')}`
-
-    const orderData = {
-      code: orderCode,
-      items: items.map((i) => ({ ...i })),
-      form: { ...form, provinceName: form.province },
-      subtotal: totalPrice,
-      shipping,
-      total: estimated,
-      hasQuotePending,
-      submittedAt: new Date().toISOString(),
-    }
+    const orderData = buildOrderData()
 
     setTimeout(() => {
       clearCart()
@@ -314,12 +478,56 @@ export default function CartPage() {
     }, 1200)
   }
 
+  function finalizeTransferPayment() {
+    const errs = validate()
+    if (Object.keys(errs).length > 0 || !agreed) {
+      // Payment was received, but the order details aren't complete yet —
+      // surface the form so the customer can finish it before we create the order.
+      setErrors(errs)
+      setShowTransferModal(false)
+      setTimeout(() => {
+        const first = formRef.current?.querySelector('[data-error="true"]')
+        first?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 50)
+      return
+    }
+
+    const orderData = buildOrderData()
+    clearCart()
+    setShowTransferModal(false)
+    navigate('/dat-hang-thanh-cong', { state: { order: orderData } })
+  }
+
+  // Poll the backend for payment confirmation while the transfer modal is open.
+  // TODO(backend): replace pollTransferPaymentStatus() with a real request, e.g.
+  //   const res = await fetch(`/api/payments/${orderCodeRef.current}/status`)
+  //   const { paid } = await res.json()
+  //   return paid
+  useEffect(() => {
+    if (!showTransferModal || transferStatus !== 'idle') return
+    let cancelled = false
+
+    const interval = setInterval(async () => {
+      const paid = await pollTransferPaymentStatus()
+      if (cancelled || !paid) return
+      setTransferStatus('checking')
+      setTimeout(() => {
+        if (cancelled) return
+        setTransferStatus('success')
+        setTimeout(() => { if (!cancelled) finalizeTransferPayment() }, 1300)
+      }, 1200)
+    }, 3000)
+
+    return () => { cancelled = true; clearInterval(interval) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showTransferModal, transferStatus])
+
   // ── Empty state ─────────────────────────────────────────────────────────────
   if (items.length === 0 && !submitting) {
     return (
-      <div className="bg-cream min-h-[60vh]">
+      <div className="bg-white min-h-[60vh]">
         <div className="mx-auto max-w-xl px-4 py-24 text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-soft-green">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-primary bg-white">
             <ShoppingBag size={38} className="text-primary" />
           </div>
           <h1 className="text-2xl font-bold text-primary-dark">Giỏ hàng đang trống</h1>
@@ -332,7 +540,7 @@ export default function CartPage() {
 
   // ── Main page ───────────────────────────────────────────────────────────────
   return (
-    <div className="bg-cream min-h-screen">
+    <div className="bg-white min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-10">
 
         {/* Breadcrumb */}
@@ -358,7 +566,7 @@ export default function CartPage() {
             <div className="space-y-6">
 
               {/* Cart items */}
-              <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+              <div className="rounded-2xl bg-white shadow-soft overflow-hidden">
                 <div className="border-b border-soft px-5 py-4">
                   <h2 className="font-semibold text-ink">Sản phẩm ({items.length})</h2>
                 </div>
@@ -373,7 +581,7 @@ export default function CartPage() {
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="h-20 w-20 rounded-xl object-cover ring-1 ring-soft"
+                          className="h-20 w-20 rounded-xl bg-white object-contain p-1.5 ring-1 ring-soft"
                         />
                       </Link>
                       <div className="flex flex-1 flex-col gap-1.5">
@@ -435,22 +643,9 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Order note */}
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                <label className="mb-2 block text-sm font-semibold text-ink">
-                  Ghi chú thêm <span className="font-normal text-faint">(tùy chọn)</span>
-                </label>
-                <textarea
-                  {...field('note')}
-                  rows={3}
-                  placeholder="Ví dụ: thời gian nhận hàng phù hợp, tình trạng cây trồng cần tư vấn, yêu cầu xuất hóa đơn, hoặc ghi chú giao hàng."
-                  className={inputCls(false) + ' resize-none'}
-                />
-              </div>
-
               {/* Order form */}
-              <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
-                <div className="border-b border-soft px-5 py-4">
+              <div className="rounded-2xl bg-white shadow-soft">
+                <div className="rounded-t-2xl border-b border-soft px-5 py-4">
                   <h2 className="font-semibold text-ink">Thông tin đặt hàng</h2>
                 </div>
                 <div className="space-y-6 p-5">
@@ -470,9 +665,15 @@ export default function CartPage() {
                       <FormField label="Số điện thoại" required error={errors.phone}>
                         <input
                           data-error={!!errors.phone}
-                          {...field('phone')}
+                          value={form.phone}
+                          onChange={(e) => {
+                            const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 15)
+                            setFormField('phone', digitsOnly)
+                          }}
                           type="tel"
-                          placeholder="0901 234 567"
+                          inputMode="numeric"
+                          maxLength={15}
+                          placeholder="0901234567"
                           className={inputCls(errors.phone)}
                         />
                       </FormField>
@@ -490,35 +691,25 @@ export default function CartPage() {
                   {/* B. Phương thức nhận hàng */}
                   <div>
                     <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary">B. Phương thức nhận hàng</h3>
-                    <div className="space-y-2">
-                      <RadioCard
-                        value="delivery" current={form.deliveryMethod}
-                        onChange={(v) => setForm((f) => ({ ...f, deliveryMethod: v }))}
-                        icon={Truck} label="Giao hàng tận nơi"
-                        sublabel="Merifarm sẽ xác nhận phí vận chuyển theo địa chỉ thực tế."
-                      />
-                      <RadioCard
-                        value="pickup" current={form.deliveryMethod}
-                        onChange={(v) => setForm((f) => ({ ...f, deliveryMethod: v }))}
-                        icon={Store} label="Nhận tại kho / cửa hàng"
-                        sublabel="Số 5-7 Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh."
-                      />
-                      <RadioCard
-                        value="consult" current={form.deliveryMethod}
-                        onChange={(v) => setForm((f) => ({ ...f, deliveryMethod: v }))}
-                        icon={PhoneCall} label="Cần Merifarm tư vấn trước khi giao"
-                        sublabel="Nhân viên sẽ liên hệ tư vấn và thống nhất lịch giao hàng."
-                      />
-                    </div>
+                    <OptionPicker
+                      options={DELIVERY_OPTIONS}
+                      value={form.deliveryMethod}
+                      onChange={(v) => setForm((f) => ({ ...f, deliveryMethod: v }))}
+                      placeholder="— Chọn phương thức nhận hàng —"
+                    />
 
                     {/* Pickup address notice */}
                     {form.deliveryMethod === 'pickup' && (
-                      <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-gold-soft px-4 py-3 text-sm text-ink">
+                      <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-accent-dark/30 bg-white px-4 py-3 text-sm text-ink">
                         <MapPin size={16} className="mt-0.5 shrink-0 text-accent-dark" />
                         <div>
                           <p className="font-semibold">Địa chỉ kho / cửa hàng Merifarm</p>
-                          <p className="mt-0.5 text-secondary">Số 5-7 Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh</p>
-                          <p className="text-secondary">Hotline: <a href="tel:0982969781" className="font-medium text-primary">0982 969 781</a></p>
+                          <p className="mt-0.5 text-secondary">Số 5-7, Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh</p>
+                          <p className="text-secondary">
+                            Hotline: <a href="tel:0981798065" className="font-medium text-primary">0981 798 065</a>
+                            {' - '}
+                            <a href="tel:0782861873" className="font-medium text-primary">0782 861 873</a>
+                          </p>
                         </div>
                       </div>
                     )}
@@ -571,7 +762,7 @@ export default function CartPage() {
                           <input
                             data-error={!!errors.street}
                             {...field('street')}
-                            placeholder="Ví dụ: Số 5-7 Đường số 32"
+                            placeholder="Ví dụ: Số 5-7, Đường số 32"
                             className={inputCls(errors.street)}
                           />
                         </FormField>
@@ -579,51 +770,31 @@ export default function CartPage() {
                     </div>
                   )}
 
-                  {/* D. Phương thức thanh toán */}
-                  <div>
-                    <h3 className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
-                      {form.deliveryMethod === 'delivery' ? 'D.' : 'C.'} Phương thức thanh toán
-                    </h3>
-                    {errors.paymentMethod && (
-                      <p className="mb-2 flex items-center gap-1 text-xs text-red-500">
-                        <AlertCircle size={12} />{errors.paymentMethod}
-                      </p>
-                    )}
-                    <div className="mt-3 space-y-2">
-                      <RadioCard
-                        value="cod" current={form.paymentMethod}
-                        onChange={(v) => { setForm((f) => ({ ...f, paymentMethod: v })); setErrors((e) => ({ ...e, paymentMethod: undefined })) }}
-                        icon={CreditCard} label="Thanh toán khi nhận hàng (COD)"
-                        sublabel="Trả tiền mặt hoặc chuyển khoản khi nhận được hàng."
-                      />
-                      <RadioCard
-                        value="transfer" current={form.paymentMethod}
-                        onChange={(v) => { setForm((f) => ({ ...f, paymentMethod: v })); setErrors((e) => ({ ...e, paymentMethod: undefined })) }}
-                        icon={Banknote} label="Chuyển khoản sau khi Merifarm xác nhận đơn"
-                        sublabel="Merifarm sẽ gửi thông tin tài khoản sau khi xác nhận."
-                      />
-                      <RadioCard
-                        value="consult" current={form.paymentMethod}
-                        onChange={(v) => { setForm((f) => ({ ...f, paymentMethod: v })); setErrors((e) => ({ ...e, paymentMethod: undefined })) }}
-                        icon={UserCheck} label="Cần nhân viên liên hệ tư vấn"
-                        sublabel="Nhân viên Merifarm sẽ trao đổi và hướng dẫn thanh toán."
-                      />
-                    </div>
-                    <p className="mt-3 flex items-start gap-2 rounded-xl bg-gold-soft px-4 py-3 text-xs text-secondary">
-                      <AlertCircle size={13} className="mt-0.5 shrink-0 text-accent-dark" />
-                      Đơn hàng chưa phải là giao dịch thanh toán hoàn tất. Merifarm sẽ liên hệ xác nhận sản phẩm, phí vận chuyển và phương thức thanh toán trước khi giao hàng.
-                    </p>
-                  </div>
                 </div>
+              </div>
+
+              {/* Order note */}
+              <div className="rounded-2xl bg-white p-5 shadow-soft">
+                <label className="mb-2 block text-sm font-semibold text-ink">
+                  Ghi chú thêm <span className="font-normal text-faint">(tùy chọn)</span>
+                </label>
+                <textarea
+                  {...field('note')}
+                  rows={3}
+                  placeholder="Ví dụ: thời gian nhận hàng phù hợp, tình trạng cây trồng cần tư vấn, yêu cầu xuất hóa đơn, hoặc ghi chú giao hàng."
+                  className={inputCls(false) + ' resize-none'}
+                />
               </div>
             </div>
 
             {/* ── RIGHT COLUMN ── */}
             <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
 
-              {/* Order summary */}
-              <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
-                <div className="border-b border-soft px-5 py-4">
+              {/* Order summary + Payment method + Consent/submit — merged into one card */}
+              <div className="rounded-2xl bg-white shadow-soft">
+
+                {/* Order summary */}
+                <div className="rounded-t-2xl border-b border-soft px-5 py-4">
                   <h2 className="font-semibold text-ink">Tóm tắt đơn hàng</h2>
                 </div>
                 <div className="p-5 space-y-3">
@@ -647,10 +818,16 @@ export default function CartPage() {
                       <span className="text-secondary">Phí vận chuyển tạm tính</span>
                       <span className="font-medium text-ink">{formatPrice(shipping)}</span>
                     </div>
+                    {coupon && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-secondary">Giảm giá ({coupon.code})</span>
+                        <span className="font-medium text-primary">−{formatPrice(discount)}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="border-t border-soft pt-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-ink">Tổng thanh toán dự kiến</span>
+                      <span className="font-semibold text-ink">Tổng thanh toán</span>
                       <span className="text-xl font-bold text-primary-dark">{formatPrice(estimated)}</span>
                     </div>
                     {hasQuotePending && (
@@ -659,70 +836,416 @@ export default function CartPage() {
                       </p>
                     )}
                     <p className="mt-2 text-xs text-faint">
-                      Phí vận chuyển là mức tạm tính. Merifarm sẽ xác nhận lại phí giao hàng chính xác theo địa chỉ, khối lượng và khu vực trước khi xử lý đơn.
+                      Phí vận chuyển là mức tạm tính. Merifarm sẽ thông báo nếu có phát sinh thêm trước khi giao hàng.
                     </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Policy consent + submit */}
-              <div className="rounded-2xl bg-white p-5 shadow-sm space-y-4">
-                <label className="flex cursor-pointer items-start gap-3">
-                  <div className="relative mt-0.5 shrink-0">
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={agreed}
-                      onChange={(e) => setAgreed(e.target.checked)}
-                    />
-                    <div className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-all duration-150
-                      ${agreed ? 'border-primary bg-primary' : 'border-soft bg-white'}`}>
-                      {agreed && <CheckSquare size={12} className="text-white" />}
-                    </div>
-                  </div>
-                  <p className="text-xs leading-relaxed text-secondary">
-                    Bằng việc gửi yêu cầu đặt hàng, tôi xác nhận đã kiểm tra thông tin đơn hàng và đồng ý với{' '}
-                    <Link to="/chinh-sach/huong-dan-mua-hang" className="text-primary underline-offset-2 hover:underline" target="_blank">Chính sách mua hàng</Link>,{' '}
-                    <Link to="/chinh-sach/chinh-sach-giao-hang" className="text-primary underline-offset-2 hover:underline" target="_blank">Chính sách giao hàng</Link>,{' '}
-                    <Link to="/chinh-sach/chinh-sach-doi-tra-hoan-tien" className="text-primary underline-offset-2 hover:underline" target="_blank">Chính sách đổi trả</Link> và{' '}
-                    <Link to="/chinh-sach/chinh-sach-bao-mat-thong-tin-ca-nhan" className="text-primary underline-offset-2 hover:underline" target="_blank">Chính sách bảo mật</Link> của Merifarm.
-                  </p>
-                </label>
-
-                <button
-                  type="submit"
-                  disabled={!agreed || submitting}
-                  className={`flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-bold transition-all duration-200
-                    ${agreed && !submitting
-                      ? 'bg-primary text-white hover:bg-primary-dark hover:-translate-y-0.5 hover:shadow-md cursor-pointer'
-                      : 'bg-soft text-faint cursor-not-allowed'}`}
-                >
-                  {submitting ? (
+                {/* Mã ưu đãi (Coupon) */}
+                <div className="border-t border-soft px-5 py-4">
+                  <h2 className="font-semibold text-ink">Mã ưu đãi (Coupon)</h2>
+                </div>
+                <div className="p-5">
+                  {!coupon ? (
                     <>
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                      </svg>
-                      Đang gửi yêu cầu...
+                      <div className="flex gap-2">
+                        <input
+                          value={form.couponCode}
+                          onChange={(e) => {
+                            setFormField('couponCode', e.target.value)
+                            if (couponError) setCouponError('')
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') { e.preventDefault(); applyCoupon() }
+                          }}
+                          placeholder="Nhập mã ưu đãi (nếu có)"
+                          className={inputCls(couponError) + ' flex-1'}
+                        />
+                        <button
+                          type="button"
+                          disabled={!form.couponCode.trim()}
+                          onClick={applyCoupon}
+                          className={`shrink-0 rounded-xl border px-4 text-sm font-semibold transition-colors
+                            ${form.couponCode.trim()
+                              ? 'border-primary text-primary hover:bg-primary hover:text-white cursor-pointer'
+                              : 'border-soft text-faint cursor-not-allowed'}`}
+                        >
+                          Áp dụng
+                        </button>
+                      </div>
+                      {couponError && (
+                        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">
+                          <AlertCircle size={12} />{couponError}
+                        </p>
+                      )}
                     </>
                   ) : (
-                    <>
-                      <Package size={16} />
-                      Gửi yêu cầu đặt hàng
-                    </>
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-soft-green/40 px-4 py-2.5">
+                      <span className="text-sm font-medium text-primary-dark">
+                        Đã áp dụng mã <span className="font-bold">{coupon.code}</span> — giảm{' '}
+                        {coupon.type === 'fixed' ? formatPrice(coupon.value) : `${coupon.value}%`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removeCoupon}
+                        className="shrink-0 text-faint transition-colors hover:text-ink"
+                      >
+                        <X size={15} />
+                      </button>
+                    </div>
                   )}
-                </button>
+                </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-faint">
-                  <span className="flex items-center gap-1"><Package size={12} /> Xác nhận trước khi giao</span>
-                  <span className="flex items-center gap-1"><Truck size={12} /> Giao hàng toàn quốc</span>
-                  <span className="flex items-center gap-1"><UserCheck size={12} /> Hỗ trợ tư vấn kỹ thuật</span>
+                {/* Phương thức thanh toán */}
+                <div className="border-t border-soft px-5 py-4">
+                  <h2 className="font-semibold text-ink">Phương thức thanh toán</h2>
+                </div>
+                <div className="p-5">
+                  {errors.paymentMethod && (
+                    <p className="mb-2 flex items-center gap-1 text-xs text-red-500">
+                      <AlertCircle size={12} />{errors.paymentMethod}
+                    </p>
+                  )}
+                  <div data-error={!!errors.paymentMethod}>
+                    <OptionPicker
+                      options={PAYMENT_OPTIONS}
+                      value={form.paymentMethod}
+                      onChange={(v) => {
+                        setForm((f) => ({ ...f, paymentMethod: v }))
+                        setErrors((e) => ({ ...e, paymentMethod: undefined }))
+                        if (v === 'transfer') {
+                          pollAttemptsRef.current = 0
+                          setTransferStatus('idle')
+                          setShowTransferModal(true)
+                        }
+                      }}
+                      placeholder="— Chọn phương thức thanh toán —"
+                      error={errors.paymentMethod}
+                    />
+                  </div>
+
+                  <div className="mt-3.5 flex items-center justify-between gap-3 border-t border-soft pt-3.5">
+                    <div>
+                      <p className="text-sm font-medium text-ink">Hóa đơn điện tử</p>
+                      <p className="mt-0.5 text-xs text-secondary">Xuất hóa đơn VAT cho đơn hàng này.</p>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={form.eInvoice}
+                      onClick={() => {
+                        if (form.eInvoice) setFormField('eInvoice', false)
+                        else setShowInvoiceModal(true)
+                      }}
+                      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200
+                        ${form.eInvoice ? 'bg-primary' : 'bg-soft'}`}
+                    >
+                      <span
+                        className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200"
+                        style={{ transform: form.eInvoice ? 'translateX(22px)' : 'translateX(0)' }}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Invoice summary (once confirmed via modal) */}
+                  {form.eInvoice && (
+                    <div className="mt-3.5 flex items-center justify-between gap-3 rounded-xl border border-soft bg-[#F8F5F0] px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-ink">
+                          {form.invoiceType === 'company' ? 'Xuất hóa đơn công ty' : 'Xuất hóa đơn cá nhân'}
+                        </p>
+                        <p className="mt-0.5 truncate text-xs text-secondary">
+                          {form.invoiceName} · {form.invoiceEmail}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowInvoiceModal(true)}
+                        className="shrink-0 text-xs font-semibold text-primary hover:underline"
+                      >
+                        Chỉnh sửa
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Policy consent + submit */}
+                <div className="space-y-4 rounded-b-2xl border-t border-soft p-5">
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <div className="relative mt-0.5 shrink-0">
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={agreed}
+                        onChange={(e) => setAgreed(e.target.checked)}
+                      />
+                      <div className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-all duration-150
+                        ${agreed ? 'border-primary bg-primary' : 'border-soft bg-white'}`}>
+                        {agreed && <CheckSquare size={12} className="text-white" />}
+                      </div>
+                    </div>
+                    <p className="text-xs leading-relaxed text-secondary">
+                      Tôi đồng ý với{' '}
+                      <Link to="/chinh-sach/huong-dan-mua-hang" className="text-primary underline-offset-2 hover:underline" target="_blank">điều khoản &amp; chính sách</Link>
+                      <span className="ml-0.5 text-red-500">*</span>
+                    </p>
+                  </label>
+
+                  <button
+                    type="submit"
+                    disabled={!agreed || submitting}
+                    className={`flex w-full items-center justify-center gap-2 rounded-full border-2 border-primary bg-primary py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-primary-dark hover:border-primary-dark
+                      ${agreed && !submitting ? 'hover:-translate-y-0.5 hover:shadow-md cursor-pointer' : 'cursor-not-allowed'}`}
+                  >
+                    {submitting ? (
+                      <>
+                        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Đang gửi yêu cầu...
+                      </>
+                    ) : (
+                      <>
+                        <Package size={16} />
+                        Gửi yêu cầu đặt hàng
+                      </>
+                    )}
+                  </button>
+
+                  <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-faint">
+                    <span className="flex items-center gap-1"><Package size={12} /> Xác nhận trước khi giao</span>
+                    <span className="flex items-center gap-1"><Truck size={12} /> Giao hàng toàn quốc</span>
+                    <span className="flex items-center gap-1"><UserCheck size={12} /> Hỗ trợ tư vấn kỹ thuật</span>
+                  </div>
                 </div>
               </div>
             </div>
 
           </div>
         </form>
+
+        {/* ── Invoice modal ─────────────────────────────────────────── */}
+        {showInvoiceModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            onClick={cancelInvoice}
+          >
+            <div
+              className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="border-b border-soft pb-4 text-lg font-bold text-ink">Thông tin hóa đơn</h3>
+
+              <div className="mt-4 space-y-4">
+                <FormField label="Loại hóa đơn" required>
+                  <div className="flex items-center gap-6">
+                    {[
+                      { value: 'company', label: 'Công ty' },
+                      { value: 'personal', label: 'Cá nhân' },
+                    ].map((opt) => (
+                      <label key={opt.value} className="flex cursor-pointer items-center gap-2">
+                        <input
+                          type="radio"
+                          className="sr-only"
+                          checked={form.invoiceType === opt.value}
+                          onChange={() => setFormField('invoiceType', opt.value)}
+                        />
+                        <span className={`flex h-[18px] w-[18px] items-center justify-center rounded-full border-2 transition-colors
+                          ${form.invoiceType === opt.value ? 'border-primary' : 'border-soft'}`}>
+                          {form.invoiceType === opt.value && <span className="h-2 w-2 rounded-full bg-primary" />}
+                        </span>
+                        <span className="text-sm text-ink">{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </FormField>
+
+                <FormField
+                  label={form.invoiceType === 'company' ? 'Tên công ty' : 'Tên đầy đủ'}
+                  required
+                  error={invoiceErrors.invoiceName}
+                >
+                  <input
+                    data-error={!!invoiceErrors.invoiceName}
+                    {...field('invoiceName')}
+                    placeholder={form.invoiceType === 'company' ? 'Công ty TNHH...' : 'Nguyễn Văn A'}
+                    className={inputCls(invoiceErrors.invoiceName)}
+                  />
+                </FormField>
+
+                <FormField label="Địa chỉ" required error={invoiceErrors.invoiceAddress}>
+                  <input
+                    data-error={!!invoiceErrors.invoiceAddress}
+                    {...field('invoiceAddress')}
+                    placeholder="Địa chỉ xuất hóa đơn"
+                    className={inputCls(invoiceErrors.invoiceAddress)}
+                  />
+                </FormField>
+
+                <FormField
+                  label={form.invoiceType === 'company' ? 'Mã số thuế' : 'Mã số thuế / Căn cước công dân'}
+                  required
+                  error={invoiceErrors.invoiceTaxCode}
+                >
+                  <input
+                    data-error={!!invoiceErrors.invoiceTaxCode}
+                    {...field('invoiceTaxCode')}
+                    placeholder={form.invoiceType === 'company' ? 'VD: 0312345678' : 'VD: 079xxxxxxxxx'}
+                    className={inputCls(invoiceErrors.invoiceTaxCode)}
+                  />
+                  {form.invoiceType === 'personal' && (
+                    <p className="mt-1.5 text-xs text-faint">
+                      Nhập CCCD nếu đã tích hợp mã số thuế, hoặc mã số thuế cũ nếu chưa tích hợp.
+                    </p>
+                  )}
+                </FormField>
+
+                <FormField label="Email" required error={invoiceErrors.invoiceEmail}>
+                  <input
+                    data-error={!!invoiceErrors.invoiceEmail}
+                    {...field('invoiceEmail')}
+                    type="email"
+                    placeholder="email@example.com"
+                    className={inputCls(invoiceErrors.invoiceEmail)}
+                  />
+                </FormField>
+
+                <p className="text-xs text-faint">
+                  Hóa đơn sẽ được gửi qua email trong vòng 24h kể từ khi hoàn tất đơn hàng.
+                </p>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={cancelInvoice}
+                  className="rounded-full border border-soft px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-[#F8F5F0]"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmInvoice}
+                  className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+                >
+                  Xác nhận
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Bank transfer / MOMO QR modal ─────────────────────────── */}
+        {showTransferModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            onClick={() => transferStatus === 'idle' && setShowTransferModal(false)}
+          >
+            <div
+              className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-soft px-6 py-4">
+                <h3 className="text-lg font-bold text-ink">Thanh Toán Trực tuyến (Ngân hàng/MoMo)</h3>
+                {transferStatus === 'idle' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowTransferModal(false)}
+                    className="text-faint transition-colors hover:text-ink"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
+
+              {transferStatus === 'success' ? (
+                <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
+                  <CheckCircle2 size={52} className="text-primary" />
+                  <p className="text-lg font-bold text-ink">Thanh toán thành công!</p>
+                  <p className="text-sm text-secondary">Đang chuyển đến trang xác nhận đơn hàng...</p>
+                </div>
+              ) : (
+                <div className="grid gap-6 p-6 sm:grid-cols-2">
+                  {/* Left: bank details */}
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <p className="text-xs text-faint">Công ty</p>
+                      <p className="font-semibold text-ink">{BANK_INFO.company}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-faint">Ngân hàng</p>
+                      <p className="font-semibold text-ink">{BANK_INFO.bank}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-faint">Số tài khoản</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-primary-dark">{BANK_INFO.accountNumber}</p>
+                        <button
+                          type="button"
+                          onClick={() => navigator.clipboard?.writeText(BANK_INFO.accountNumber)}
+                          title="Sao chép số tài khoản"
+                          className="text-faint transition-colors hover:text-primary"
+                        >
+                          <Copy size={13} />
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-faint">Chủ tài khoản</p>
+                      <p className="font-semibold text-ink">{BANK_INFO.accountHolder}</p>
+                    </div>
+                    <div className="border-t border-soft pt-3">
+                      <p className="text-xs text-faint">Số tiền cần chuyển</p>
+                      <p className="text-xl font-bold text-primary-dark">{formatPrice(estimated)}</p>
+                    </div>
+                  </div>
+
+                  {/* Right: QR with scanning effect */}
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <div className="relative h-[190px] w-[190px] overflow-hidden rounded-xl border border-soft">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encodeURIComponent(
+                          `Ngan hang: ${BANK_INFO.bank} | STK: ${BANK_INFO.accountNumber} | So tien: ${estimated} | ND: Thanh toan Merifarm`
+                        )}`}
+                        alt="Mã QR thanh toán"
+                        className="h-full w-full object-contain p-2"
+                      />
+                      {transferStatus === 'idle' && (
+                        <span className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-qr-scan" />
+                      )}
+                      {transferStatus === 'checking' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+                          <Loader2 size={28} className="animate-spin text-primary" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-center text-xs text-faint">Quét mã bằng app ngân hàng hoặc MOMO để thanh toán</p>
+                  </div>
+                </div>
+              )}
+
+              {transferStatus !== 'success' && (
+                <div className="border-t border-soft px-6 py-4 text-center">
+                  <div className="flex items-center justify-center gap-2 text-sm font-semibold text-ink">
+                    <Loader2 size={16} className="animate-spin text-primary" />
+                    {transferStatus === 'checking' ? 'Đang xác nhận giao dịch...' : 'Đang chờ xác nhận thanh toán...'}
+                  </div>
+                  <p className="mt-2 text-xs text-faint">
+                    Hệ thống sẽ tự động xác nhận ngay khi Merifarm nhận được thanh toán của bạn.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowTransferModal(false)}
+                    className="mt-3 text-xs font-semibold text-faint transition-colors hover:text-primary"
+                  >
+                    ← Quay lại
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── Mobile sticky bottom bar ─────────────────────────────── */}
         <div
@@ -738,10 +1261,8 @@ export default function CartPage() {
               type="button"
               onClick={() => formRef.current?.requestSubmit()}
               disabled={!agreed || submitting}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-full py-3 text-sm font-bold transition-all duration-200
-                ${agreed && !submitting
-                  ? 'bg-primary text-white hover:bg-primary-dark cursor-pointer'
-                  : 'bg-soft text-faint cursor-not-allowed'}`}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-primary bg-primary py-3 text-sm font-bold text-white transition-all duration-200 hover:bg-primary-dark hover:border-primary-dark
+                ${agreed && !submitting ? 'cursor-pointer' : 'cursor-not-allowed'}`}
             >
               <Package size={15} />
               {submitting ? 'Đang gửi...' : 'Gửi đơn hàng'}

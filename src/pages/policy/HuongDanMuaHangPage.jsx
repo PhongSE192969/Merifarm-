@@ -27,7 +27,7 @@ function Bullet({ children }) {
 
 function Step({ label, children }) {
   return (
-    <div className="rounded-xl border border-soft bg-soft-green px-4 py-3">
+    <div className="rounded-xl border border-soft bg-white px-4 py-3">
       <p className="font-semibold text-primary-dark">{label}</p>
       {children && <p className="mt-1 text-secondary">{children}</p>}
     </div>

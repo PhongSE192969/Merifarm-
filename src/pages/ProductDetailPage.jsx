@@ -63,14 +63,14 @@ function TabContent({ tabId, product, detail }) {
           <div className="overflow-hidden rounded-xl border border-soft">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-soft-green">
+                <tr className="border-b border-soft bg-white">
                   <th className="py-3 pl-4 pr-2 text-left font-semibold text-primary-dark">Thành phần</th>
                   <th className="py-3 pl-2 pr-4 text-right font-semibold text-primary-dark">Hàm lượng</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-soft">
                 {detail.ingredientItems.map((item, i) => (
-                  <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-cream/60'}>
+                  <tr key={i}>
                     <td className="py-2.5 pl-4 pr-2 text-ink">{item.label}</td>
                     <td className="py-2.5 pl-2 pr-4 text-right font-semibold text-primary-dark">{item.value}</td>
                   </tr>
@@ -108,7 +108,7 @@ function TabContent({ tabId, product, detail }) {
           {crops.map((c) => (
             <span
               key={c}
-              className="rounded-full border border-primary/20 bg-soft-green px-4 py-1.5 text-sm font-semibold text-primary-dark"
+              className="rounded-full border border-primary/40 bg-white px-4 py-1.5 text-sm font-semibold text-primary-dark"
             >
               {CROP_LABELS[c] || c}
             </span>
@@ -128,7 +128,7 @@ function TabContent({ tabId, product, detail }) {
         <ol className="space-y-3">
           {(detail.usageSteps || []).map((step, i) => (
             <li key={i} className="flex items-start gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-primary bg-white text-xs font-bold text-primary">
                 {i + 1}
               </span>
               <span className="text-sm leading-relaxed text-secondary pt-0.5">{step}</span>
@@ -142,14 +142,14 @@ function TabContent({ tabId, product, detail }) {
             <div className="overflow-hidden rounded-xl border border-soft">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gold-soft">
+                  <tr className="border-b border-soft bg-white">
                     <th className="py-2.5 pl-4 pr-2 text-left font-semibold text-accent-dark">Loại cây / Giai đoạn</th>
                     <th className="py-2.5 pl-2 pr-4 text-left font-semibold text-accent-dark">Liều lượng</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-soft">
                   {detail.dosageTable.map((row, i) => (
-                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-cream/60'}>
+                    <tr key={i}>
                       <td className="py-2.5 pl-4 pr-2 text-ink">{row.crop}</td>
                       <td className="py-2.5 pl-2 pr-4 text-secondary">{row.dosage}</td>
                     </tr>
@@ -162,7 +162,7 @@ function TabContent({ tabId, product, detail }) {
             </p>
           </div>
         ) : (
-          <div className="rounded-xl border border-gold-soft bg-gold-soft/50 p-4">
+          <div className="rounded-xl border border-accent-dark/30 bg-white p-4">
             <p className="text-sm text-secondary">
               Liều lượng sử dụng vui lòng tham khảo trực tiếp trên bao bì sản phẩm hoặc liên hệ
               Merifarm để được tư vấn theo loại cây trồng, diện tích và tình trạng đất thực tế.
@@ -189,7 +189,7 @@ function TabContent({ tabId, product, detail }) {
   if (tabId === 'luu-y') {
     return (
       <div className="space-y-3">
-        <div className="flex gap-3 rounded-xl border border-gold-soft bg-gold-soft p-4">
+        <div className="flex gap-3 rounded-xl border border-accent-dark/30 bg-white p-4">
           <Info size={18} className="mt-0.5 shrink-0 text-accent-dark" />
           <div className="space-y-2 text-sm leading-relaxed text-secondary">
             {(detail.warningNote || '').split('\n\n').map((p, i) => (
@@ -263,7 +263,7 @@ export default function ProductDetailPage() {
   const consultUrl = `/lien-he?product=${encodeURIComponent(product.name)}`
 
   return (
-    <div className="bg-cream pb-24 md:pb-0">
+    <div className="bg-white pb-24 md:pb-0">
       {/* ── Breadcrumb ── */}
       <div className="mx-auto max-w-6xl px-4 pt-6 pb-2">
         <div className="flex items-center gap-1 text-sm text-faint">
@@ -341,7 +341,7 @@ export default function ProductDetailPage() {
               {category && (
                 <Link
                   to={`/san-pham?category=${category.id}`}
-                  className="mb-2 inline-block rounded-full bg-soft-green px-3 py-0.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
+                  className="mb-2 inline-block rounded-full border border-primary/40 bg-white px-3 py-0.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
                 >
                   {category.name}
                 </Link>
@@ -377,7 +377,7 @@ export default function ProductDetailPage() {
                   key={key}
                   className="group rounded-xl border border-soft bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm"
                 >
-                  <div className="mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-soft-green transition-colors group-hover:bg-primary/10">
+                  <div className="mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg border border-soft transition-colors group-hover:bg-primary/10">
                     <Icon size={14} className="text-primary" />
                   </div>
                   <p className="text-[10px] uppercase tracking-wide text-faint">{label}</p>
@@ -511,15 +511,15 @@ export default function ProductDetailPage() {
 
       {/* ── Benefits Section ── */}
       {detail.benefits?.length > 0 && (
-        <div className="bg-soft-green py-14">
+        <div className="bg-white py-14">
           <div className="mx-auto max-w-6xl px-4">
             <Reveal>
               <SectionHeading eyebrow="NỔI BẬT" title="Lợi ích của sản phẩm" />
               <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {detail.benefits.map((b, i) => (
                   <Reveal key={i} delay={i * 80}>
-                    <div className="group flex flex-col rounded-2xl border border-white bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
-                      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-soft-green transition-colors group-hover:bg-primary/10">
+                    <div className="group flex flex-col rounded-2xl border border-soft bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+                      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl border border-soft transition-colors group-hover:bg-primary/10">
                         <DynamicIcon name={b.icon} size={22} className="text-primary" />
                       </div>
                       <h3 className="mb-1.5 font-bold text-ink">{b.title}</h3>
@@ -542,7 +542,7 @@ export default function ProductDetailPage() {
               {detail.suitableWhen.map((w, i) => (
                 <Reveal key={i} delay={i * 60}>
                   <div className="group flex flex-col gap-2 rounded-xl border border-soft bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-soft-green group-hover:bg-primary/10 transition-colors">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-soft group-hover:bg-primary/10 transition-colors">
                       <DynamicIcon name={w.icon} size={17} className="text-primary" />
                     </div>
                     <h4 className="text-sm font-bold text-ink">{w.title}</h4>
@@ -568,12 +568,12 @@ export default function ProductDetailPage() {
                 ['Quy cách', detail.specification?.quyCach || product.packageUnit || 'Đang cập nhật'],
                 ['Dạng sản phẩm', detail.specification?.dangSanPham || FORM_LABELS[product.form] || 'Đang cập nhật'],
                 ['Xuất xứ', detail.specification?.xuatXu || 'Đang cập nhật'],
-                ['Đơn vị phân phối', 'CÔNG TY TNHH PHÁT TRIỂN KỸ THUẬT TÂM PHÚC'],
+                ['Đơn vị phân phối', 'CÔNG TY TNHH CÔNG NGHỆ DVP-DEDITECH'],
               ].map(([label, value], i) => (
                 <div
                   key={label}
-                  className={`flex items-start gap-4 px-5 py-3 text-sm ${
-                    i % 2 === 0 ? 'bg-cream/50' : 'bg-white'
+                  className={`flex items-start gap-4 px-5 py-3 text-sm bg-white ${
+                    i > 0 ? 'border-t border-soft' : ''
                   }`}
                 >
                   <span className="w-44 shrink-0 font-semibold text-ink">{label}</span>
@@ -586,16 +586,16 @@ export default function ProductDetailPage() {
       </div>
 
       {/* ── Consultation CTA ── */}
-      <div className="bg-primary py-14">
+      <div className="border-t border-soft bg-white py-14">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <Reveal>
-            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-accent-light">
+            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-accent-dark">
               TƯ VẤN MIỄN PHÍ
             </p>
-            <h2 className="text-2xl font-extrabold text-white md:text-3xl">
+            <h2 className="text-2xl font-extrabold text-primary-dark md:text-3xl">
               Bạn chưa chắc sản phẩm này phù hợp<br className="hidden sm:block" /> với cây trồng của mình?
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-white/80">
+            <p className="mt-4 text-base leading-relaxed text-secondary">
               Gửi thông tin loại cây, tình trạng đất hoặc hình ảnh vườn. Đội ngũ kỹ thuật
               Merifarm sẽ hỗ trợ tư vấn sản phẩm và cách sử dụng phù hợp nhất.
             </p>
@@ -605,11 +605,11 @@ export default function ProductDetailPage() {
                 Tư vấn sản phẩm này
               </Button>
               <a
-                href="tel:0982969781"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/60 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white hover:text-primary-dark"
+                href="tel:0981798065"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-primary px-6 py-3 text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-white"
               >
                 <Phone size={17} />
-                Gọi 0982 969 781
+                Gọi 0981 798 065
               </a>
             </div>
           </Reveal>

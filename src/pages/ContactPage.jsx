@@ -12,9 +12,9 @@ const CONTACT_CARDS = [
   {
     Icon: Phone,
     title: 'Hotline tư vấn',
-    main: '0982 969 781',
+    main: '0981 798 065 - 0782 861 873',
     sub: 'Hỗ trợ nhanh chóng trong giờ làm việc',
-    href: 'tel:0982969781',
+    href: 'tel:0981798065',
   },
   {
     Icon: Mail,
@@ -26,8 +26,8 @@ const CONTACT_CARDS = [
   {
     Icon: MapPin,
     title: 'Địa chỉ văn phòng / kho hàng',
-    main: 'Công ty TNHH Phát Triển Kỹ Thuật Tâm Phúc',
-    sub: 'Số 5-7 Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh, Việt Nam',
+    main: 'Công ty TNHH Công Nghệ DVP-Deditech',
+    sub: 'Số 5-7, Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh, Việt Nam',
     href: 'https://maps.google.com/?q=Đường+số+32+Bình+Phú+Hồ+Chí+Minh',
     linkLabel: 'Hướng dẫn đường đi',
   },
@@ -133,7 +133,7 @@ function ChipGroup({ options, selected, onToggle, multi = true }) {
             className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all duration-150
               focus:outline-none focus:ring-2 focus:ring-primary/25
               ${isOn
-                ? 'border-primary bg-primary text-white shadow-sm'
+                ? 'border-primary bg-white text-primary shadow-sm ring-1 ring-primary'
                 : 'border-soft bg-white text-ink hover:border-primary/50 hover:bg-soft-green hover:text-primary-dark'
               }`}
           >
@@ -169,7 +169,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="bg-cream">
+    <div className="bg-white">
 
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden py-14 text-center">
@@ -212,7 +212,7 @@ export default function ContactPage() {
               {CONTACT_CARDS.map((card, i) => (
                 <Reveal key={card.title} delay={i * 70}>
                   <div className="flex items-start gap-4 rounded-card border border-soft bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-soft-green text-primary">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-soft bg-white text-primary">
                       <card.Icon size={19} />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -284,7 +284,7 @@ export default function ContactPage() {
               <div className="rounded-card border border-soft bg-white shadow-sm">
                 {submitted ? (
                   <div className="flex flex-col items-center justify-center px-8 py-20 text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-soft-green">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full border border-primary bg-white">
                       <CheckCircle2 size={34} className="text-primary" />
                     </div>
                     <h3 className="mt-5 text-xl font-bold text-primary-dark">
@@ -443,7 +443,7 @@ export default function ContactPage() {
 
                       <button
                         type="submit"
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-150 hover:bg-primary-dark hover:shadow-md active:scale-[0.99]"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-white px-6 py-3.5 text-sm font-bold text-primary shadow-sm transition-all duration-150 hover:bg-primary hover:text-white hover:shadow-md active:scale-[0.99]"
                       >
                         <Send size={16} />
                         Gửi yêu cầu tư vấn
@@ -489,7 +489,7 @@ export default function ContactPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <span className={`absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-bold
-                      ${card.accent ? 'bg-accent text-white' : 'bg-white/90 text-primary-dark'}`}>
+                      ${card.accent ? 'bg-white border border-accent-dark text-accent-dark' : 'bg-white border border-soft text-primary-dark'}`}>
                       {card.badge}
                     </span>
                   </div>
@@ -500,7 +500,7 @@ export default function ContactPage() {
                     <button
                       className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all duration-150
                         ${card.accent
-                          ? 'border-accent bg-accent text-white hover:bg-accent-dark'
+                          ? 'border-accent-dark text-accent-dark hover:bg-accent hover:text-white'
                           : 'border-primary text-primary hover:bg-primary hover:text-white'}`}
                     >
                       {card.cta}

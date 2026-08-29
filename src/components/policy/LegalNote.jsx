@@ -1,6 +1,6 @@
 export default function LegalNote() {
   return (
-    <div className="bg-cream border-t border-soft py-8">
+    <div className="bg-white border-t border-soft py-8">
       <div className="mx-auto max-w-6xl px-4">
         <p className="max-w-4xl text-xs leading-relaxed text-faint">
           Các chính sách trên được Merifarm công bố nhằm minh bạch thông tin mua hàng, thanh toán,

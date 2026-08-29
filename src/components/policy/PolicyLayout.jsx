@@ -5,7 +5,7 @@ export default function PolicyLayout({ toc, children }) {
   const [tocOpen, setTocOpen] = useState(false)
 
   return (
-    <div className="bg-cream py-8 md:py-10">
+    <div className="bg-white py-8 md:py-10">
       <div className="mx-auto max-w-6xl px-4">
 
         {/* Mobile TOC — collapsible */}

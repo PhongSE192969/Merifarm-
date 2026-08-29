@@ -28,7 +28,7 @@ function FilterGroup({ title, options, activeId, onSelect, getLabel = (o) => o.n
             type="button"
             onClick={() => onSelect('')}
             className={`w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
-              !activeId ? 'bg-primary text-white' : 'hover:bg-primary/10'
+              !activeId ? 'bg-white text-primary ring-1 ring-primary font-semibold' : 'hover:bg-primary/10'
             }`}
           >
             Tất cả
@@ -40,7 +40,7 @@ function FilterGroup({ title, options, activeId, onSelect, getLabel = (o) => o.n
               type="button"
               onClick={() => onSelect(o.id)}
               className={`w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
-                activeId === o.id ? 'bg-primary text-white' : 'hover:bg-primary/10'
+                activeId === o.id ? 'bg-white text-primary ring-1 ring-primary font-semibold' : 'hover:bg-primary/10'
               }`}
             >
               {getLabel(o)}
@@ -161,7 +161,7 @@ export default function ProductsPage() {
           <SlidersHorizontal size={15} />
           Lọc
           {activeFilterCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border border-primary bg-white text-xs font-bold text-primary">
               {activeFilterCount}
             </span>
           )}
@@ -234,7 +234,7 @@ export default function ProductsPage() {
                   type="button"
                   onClick={() => setPage(n)}
                   className={`h-10 w-10 rounded-full text-sm font-semibold transition-colors ${
-                    page === n ? 'bg-primary text-white' : 'bg-white text-secondary hover:bg-primary/10'
+                    page === n ? 'bg-white text-primary ring-1 ring-primary' : 'bg-white text-secondary hover:bg-primary/10'
                   }`}
                 >
                   {n}
@@ -286,7 +286,7 @@ export default function ProductsPage() {
               <button
                 type="button"
                 onClick={() => setSheetOpen(false)}
-                className="w-full rounded-full bg-primary py-3 text-sm font-bold text-white"
+                className="w-full rounded-full border-2 border-primary bg-white py-3 text-sm font-bold text-primary hover:bg-primary hover:text-white transition-colors"
               >
                 Áp dụng ({filtered.length} sản phẩm)
               </button>

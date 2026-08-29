@@ -64,7 +64,7 @@ export default function ChinhSachBaoMatPage() {
         <PolicySection id="section-2" number="02" title="Giải thích từ ngữ">
           <p>Trong phạm vi chính sách này:</p>
           <div className="mt-3 space-y-3">
-            <div className="rounded-xl border border-soft bg-soft-green px-4 py-3">
+            <div className="rounded-xl border border-soft bg-white px-4 py-3">
               <p className="font-semibold text-primary-dark">
                 "Thông tin cá nhân" hoặc "dữ liệu cá nhân"
               </p>
@@ -74,7 +74,7 @@ export default function ChinhSachBaoMatPage() {
                 cá nhân cụ thể.
               </p>
             </div>
-            <div className="rounded-xl border border-soft bg-soft-green px-4 py-3">
+            <div className="rounded-xl border border-soft bg-white px-4 py-3">
               <p className="font-semibold text-primary-dark">"Xử lý thông tin cá nhân"</p>
               <p className="mt-1">
                 bao gồm một hoặc nhiều hoạt động như thu thập, ghi, phân tích, xác nhận, lưu trữ,
@@ -83,7 +83,7 @@ export default function ChinhSachBaoMatPage() {
                 có liên quan.
               </p>
             </div>
-            <div className="rounded-xl border border-soft bg-soft-green px-4 py-3">
+            <div className="rounded-xl border border-soft bg-white px-4 py-3">
               <p className="font-semibold text-primary-dark">"Khách hàng"</p>
               <p className="mt-1">
                 là cá nhân hoặc đại diện tổ chức cung cấp thông tin cho Merifarm để tư vấn, đặt
@@ -516,14 +516,14 @@ export default function ChinhSachBaoMatPage() {
           number="21"
           title="Thông tin liên hệ về bảo mật thông tin cá nhân"
         >
-          <div className="rounded-xl border border-soft bg-soft-green p-4">
+          <div className="rounded-xl border border-soft bg-white p-4">
             <p className="font-semibold text-primary-dark">
-              Merifarm – CÔNG TY TRÁCH NHIỆM HỮU HẠN PHÁT TRIỂN KỸ THUẬT TÂM PHÚC
+              Phân Bón Merifarm – CÔNG TY TRÁCH NHIỆM HỮU HẠN CÔNG NGHỆ DVP-DEDITECH
             </p>
             <div className="mt-3 space-y-1.5 text-secondary">
-              <p>Hotline: 0982 969 781</p>
+              <p>Hotline: 0981 798 065 - 0782 861 873</p>
               <p>Email: contact.merifarm@gmail.com</p>
-              <p>Địa chỉ: Số 5-7 Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh, Việt Nam</p>
+              <p>Địa chỉ: Số 5-7, Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh, Việt Nam</p>
             </div>
           </div>
         </PolicySection>

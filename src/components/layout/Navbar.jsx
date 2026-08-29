@@ -5,8 +5,9 @@ import { useCartStore } from '../../store/cartStore'
 
 const NAV_LINKS = [
   { to: '/', label: 'Trang chủ' },
-  { to: '/san-pham', label: 'Sản phẩm' },
   { to: '/gioi-thieu', label: 'Giới thiệu' },
+  { to: '/san-pham', label: 'Sản phẩm' },
+  { to: '/kien-thuc-nha-nong', label: 'Kiến thức nhà nông' },
   { to: '/lien-he', label: 'Liên hệ' },
 ]
 
@@ -14,6 +15,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const totalItems = useCartStore((s) => s.totalItems())
   const location = useLocation()
+  const isHome = ['/', '/gioi-thieu'].includes(location.pathname)
 
   // Close menu on route change
   useEffect(() => { setOpen(false) }, [location.pathname])
@@ -31,21 +33,31 @@ export default function Navbar() {
 
   const desktopLinkClass = ({ isActive }) =>
     `relative text-sm font-semibold transition-colors ${
-      isActive
-        ? 'text-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-primary after:rounded-full'
-        : 'text-[#1C1C1C] hover:text-primary'
+      isHome
+        ? isActive
+          ? 'text-white after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-accent-light'
+          : 'text-white/90 hover:text-white'
+        : isActive
+          ? 'text-primary after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-primary'
+          : 'text-[#1C1C1C] hover:text-primary'
     }`
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-black/5 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:py-4">
+      <header
+        className={`top-0 z-50 w-full transition-colors ${
+          isHome
+            ? 'absolute border-b border-white/15 bg-black/10 backdrop-blur-[2px]'
+            : 'sticky border-b border-black/5 bg-white/95 backdrop-blur'
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6 md:py-4 lg:px-8">
           <Link to="/" className="flex items-center gap-2" aria-label="Merifarm trang chủ">
-            <img src="/logo.png" alt="Merifarm" className="h-10 w-auto object-contain md:h-11" />
+            <img src="/logo.png" alt="Phân Bón Merifarm" className="h-10 w-auto object-contain md:h-11" />
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center justify-center gap-6 md:flex lg:gap-8">
             {NAV_LINKS.map((link) => (
               <NavLink key={link.to} to={link.to} className={desktopLinkClass} end={link.to === '/'}>
                 {link.label}
@@ -57,12 +69,16 @@ export default function Navbar() {
             {/* Cart icon */}
             <Link
               to="/gio-hang"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-cream text-primary-dark hover:bg-primary/10 transition-colors"
+              className={`relative flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${
+                isHome
+                  ? 'border-white/60 bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-primary-dark'
+                  : 'border-soft bg-white text-primary-dark hover:bg-primary/10'
+              }`}
               aria-label={`Giỏ hàng${totalItems > 0 ? ` (${totalItems} sản phẩm)` : ''}`}
             >
               <ShoppingCart size={20} />
               {totalItems > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-white leading-none">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-accent-dark bg-white text-xs font-bold text-accent-dark leading-none">
                   {totalItems > 9 ? '9+' : totalItems}
                 </span>
               )}
@@ -71,7 +87,9 @@ export default function Navbar() {
             {/* Hamburger */}
             <button
               type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-primary-dark transition-colors hover:bg-primary/10 md:hidden"
+              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors md:hidden ${
+                isHome ? 'text-white hover:bg-white/15' : 'text-primary-dark hover:bg-primary/10'
+              }`}
               onClick={() => setOpen((o) => !o)}
               aria-label={open ? 'Đóng menu' : 'Mở menu'}
               aria-expanded={open}
@@ -113,7 +131,7 @@ export default function Navbar() {
         <div className="border-t border-soft px-4 py-3">
           <Link
             to="/lien-he"
-            className="flex w-full items-center justify-center rounded-full bg-primary py-2.5 text-sm font-bold text-white"
+            className="flex w-full items-center justify-center rounded-full border border-primary bg-white py-2.5 text-sm font-bold text-primary hover:bg-primary hover:text-white transition-colors"
             onClick={() => setOpen(false)}
           >
             Gửi yêu cầu tư vấn

@@ -1,8 +1,8 @@
 const VARIANTS = {
-  primary: 'bg-primary text-white hover:bg-primary-dark',
-  accent: 'bg-accent text-white hover:bg-accent-dark',
+  primary: 'bg-white border border-primary text-primary hover:bg-primary hover:text-white',
+  accent: 'bg-white border border-accent-dark text-accent-dark hover:bg-accent hover:text-white',
   outline: 'border border-primary text-primary hover:bg-primary hover:text-white',
-  'outline-white': 'border border-white text-white hover:bg-white hover:text-primary-dark',
+  glass: 'border border-primary/40 bg-soft-green/45 text-primary-dark shadow-[0_6px_20px_rgba(15,107,52,0.08)] backdrop-blur-md hover:border-primary/70 hover:bg-soft-green/75 hover:shadow-[0_8px_26px_rgba(15,107,52,0.14)]',
   ghost: 'text-primary hover:bg-primary/10',
 }
 

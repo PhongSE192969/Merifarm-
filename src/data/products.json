@@ -8,7 +8,7 @@
     "packageUnit": "Gói 500g",
     "form": "bot",
     "price": 72000,
-    "image": "/products/magie-bo-kem-no1/img-1.png",
+    "image": "/products/cards/magie-bo-kem-no1-card.png",
     "images": [
       "/products/magie-bo-kem-no1/img-1.png",
       "/products/magie-bo-kem-no1/img-2.jpg",
@@ -35,7 +35,7 @@
     "packageUnit": "Hũ 1kg",
     "form": "hat",
     "price": 127000,
-    "image": "/products/ph-balance-humate-79/img-7.jpg",
+    "image": "/products/cards/ph-balance-humate-79-card.png",
     "images": [
       "/products/ph-balance-humate-79/img-1.jpg",
       "/products/ph-balance-humate-79/img-2.jpg",
@@ -61,7 +61,7 @@
     "packageUnit": "Chai 250ml",
     "form": "nuoc",
     "price": 90000,
-    "image": "/products/ra-re-no-bui/img-1.jpg",
+    "image": "/products/cards/ra-re-no-bui-card.png",
     "images": [
       "/products/ra-re-no-bui/img-1.jpg",
       "/products/ra-re-no-bui/img-2.jpg",
@@ -87,7 +87,7 @@
     "packageUnit": "Chai 250ml",
     "form": "nuoc",
     "price": 83000,
-    "image": "/products/vo-gao-nhanh/img-5.jpg",
+    "image": "/products/cards/vo-gao-nhanh-card.png",
     "images": [
       "/products/vo-gao-nhanh/img-1.jpg",
       "/products/vo-gao-nhanh/img-2.jpg",
@@ -113,7 +113,7 @@
     "packageUnit": "Chai 250ml",
     "form": "nuoc",
     "price": 87000,
-    "image": "/products/lun-cay-ruoc-dong/img-5.jpg",
+    "image": "/products/cards/lun-cay-ruoc-dong-card.png",
     "images": [
       "/products/lun-cay-ruoc-dong/img-1.jpg",
       "/products/lun-cay-ruoc-dong/img-2.jpg",
@@ -139,7 +139,7 @@
     "packageUnit": "Chai 100ml",
     "form": "nuoc",
     "price": 89000,
-    "image": "/products/loang-trai-tham-sau/img-3.jpg",
+    "image": "/products/cards/loang-trai-tham-sau-card.png",
     "images": [
       "/products/loang-trai-tham-sau/img-1.jpg",
       "/products/loang-trai-tham-sau/img-2.jpg",
