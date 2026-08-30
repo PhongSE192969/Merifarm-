@@ -9,12 +9,12 @@ import {
 import Badge from '../components/ui/Badge'
 import Button from '../components/ui/Button'
 import ProductCard from '../components/product/ProductCard'
+import PriceTag from '../components/product/PriceTag'
 import Reveal from '../components/ui/Reveal'
 import SectionHeading from '../components/ui/SectionHeading'
 import categories from '../data/categories.json'
 import allProducts from '../data/products.json'
 import productDetails, { CROP_LABELS, FORM_LABELS, CATEGORY_LABELS } from '../data/productDetails'
-import { formatPrice } from '../utils/format'
 import { useCartStore } from '../store/cartStore'
 
 const ICON_MAP = { Leaf, Sun, Sprout, Shield, Zap, Droplets, AlertCircle }
@@ -358,10 +358,13 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-extrabold text-primary-dark">
-                {formatPrice(product.price)}
-              </span>
+            <div className="flex flex-wrap items-baseline gap-3">
+              <PriceTag
+                price={product.price}
+                originalPrice={product.originalPrice}
+                className="text-3xl font-extrabold"
+                color="text-primary-dark"
+              />
               <span className="text-sm text-faint">/ {product.packageUnit}</span>
             </div>
 
@@ -636,7 +639,12 @@ export default function ProductDetailPage() {
           <div className="flex items-center gap-3">
             <div className="shrink-0">
               <p className="text-[10px] uppercase tracking-wide text-faint">Đơn giá</p>
-              <p className="text-lg font-extrabold text-primary-dark">{formatPrice(product.price)}</p>
+              <PriceTag
+                price={product.price}
+                originalPrice={product.originalPrice}
+                className="text-lg font-extrabold"
+                color="text-primary-dark"
+              />
             </div>
             <div className="flex shrink-0 items-center rounded-full border border-soft">
               <button

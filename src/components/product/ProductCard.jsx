@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ShoppingCart } from 'lucide-react'
-import { formatPrice } from '../../utils/format'
 import { useCartStore } from '../../store/cartStore'
+import PriceTag from './PriceTag'
 
 export default function ProductCard({ product }) {
   const addItem = useCartStore((s) => s.addItem)
@@ -38,7 +38,7 @@ export default function ProductCard({ product }) {
         </Link>
         <p className="text-sm text-secondary line-clamp-2">{product.shortDescription}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
+          <PriceTag price={product.price} originalPrice={product.originalPrice} className="text-lg font-bold" />
           <button
             type="button"
             title="Thêm vào giỏ"

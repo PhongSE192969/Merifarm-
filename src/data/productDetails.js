@@ -446,6 +446,233 @@ const details = {
       xuatXu: 'Việt Nam',
     },
   },
+
+  robust: {
+    overview:
+      'ROBUST Giải Độc Tố Đất là chế phẩm sinh học giúp giải độc tố trong đất, cải tạo hệ vi sinh, giữ ẩm và phục hồi bộ rễ khỏe mạnh. Giải pháp sinh học an toàn cho cây trồng và đất canh tác lâu dài, hữu cơ an toàn — lành tính — phù hợp sử dụng cho nhiều loại cây trồng.\n\nSản phẩm phân giải các độc tố như kim loại nặng, hóa chất tồn dư trong đất, tạo hệ vi sinh làm đất tơi xốp, ổn định pH và có thể dùng để ủ rơm rạ, cám gạo, phân chuồng thành phân bón.',
+
+    ingredientItems: [
+      { label: 'VSV phân giải Xenllulo', value: '1x10⁸ CFU/ml' },
+      { label: 'Nguyên liệu', value: 'Chuối, trứng, sữa' },
+      { label: 'Vi sinh chuyên dùng', value: 'Bacillus, Trichoderma, Enzyme' },
+      { label: 'Thể tích thực', value: '1 lít' },
+    ],
+    ingredientNote: 'Thông tin thành phần được trình bày theo công bố trên bao bì sản phẩm.',
+
+    benefitItems: [
+      'Cải tạo đất: phân giải độc tố gồm các chất có hại như kim loại nặng, hóa chất tồn dư trong đất.',
+      'Tạo hệ vi sinh làm đất tơi xốp.',
+      'Ổn định pH đất (là hiệu ứng phụ đi kèm, không thay thế sản phẩm chuyên biệt cân bằng pH).',
+      'Dùng để ủ rơm rạ, cám gạo, phân chuồng... làm phân bón.',
+      'Giữ ẩm cho đất, hỗ trợ phục hồi bộ rễ khỏe mạnh.',
+    ],
+
+    usageSteps: [
+      'Lắc đều chai Robust trước khi pha.',
+      'Pha theo liều lượng ở bảng dưới tùy nhóm cây trồng.',
+      'Tưới nước trước cho cây ẩm ướt nhằm tạo đường dẫn cho vi sinh thẩm thấu.',
+      'Tưới đều quanh gốc vào sáng sớm hoặc chiều mát.',
+      'Không pha chung với thuốc trừ sâu, thuốc có gốc đồng.',
+    ],
+    dosageTable: [
+      { crop: 'Cây thân gỗ (sầu riêng, chè, cà phê)', dosage: '1 lít / 200–400 lít nước, tưới quanh gốc' },
+      { crop: 'Cây rau màu, cây thân dây (hồ tiêu, chanh dây, khổ qua, bầu bí, dưa, khoai lang, các loại đậu...)', dosage: '1 lít / 400–600 lít nước, tưới quanh gốc' },
+    ],
+
+    storageItems: [
+      'Nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp.',
+      'Đậy nắp sau khi sử dụng.',
+      'Lắc đều trước khi pha.',
+      'Hạn sử dụng: 24 tháng kể từ ngày sản xuất, 6 tháng sau khi mở nắp.',
+      'Sau khi pha với nước: không để dung dịch quá 7 ngày.',
+    ],
+    warningNote:
+      'Không pha chung với thuốc trừ sâu hoặc thuốc có gốc đồng. Có thể điều chỉnh liều lượng phù hợp với tình trạng cây trồng, thổ nhưỡng đất canh tác và kinh nghiệm thực tế của người trồng.\n\n' +
+      COMMON_WARNING,
+
+    quickInfo: {
+      thanhPhan: 'VSV Xenllulo, Bacillus, Trichoderma',
+      xuatXu: 'Việt Nam',
+      quyCach: 'Chai 1 Lít',
+      dang: 'Dạng lỏng',
+      congDung: 'Giải độc đất, khử phèn, tạo hệ vi sinh',
+      baoQuan: 'Nơi khô ráo, đậy nắp sau dùng',
+    },
+
+    benefits: [
+      { icon: 'Shield', title: 'Giải độc tố đất', text: 'Phân giải độc tố như kim loại nặng, hóa chất tồn dư giúp đất sạch và an toàn hơn.' },
+      { icon: 'Droplets', title: 'Giữ ẩm, khử phèn', text: 'Giúp đất giữ ẩm tốt hơn và cải thiện môi trường đất chua phèn.' },
+      { icon: 'Sprout', title: 'Tạo hệ vi sinh có lợi', text: 'Góp phần tạo hệ vi sinh làm đất tơi xốp, ổn định pH và thông thoáng hơn.' },
+      { icon: 'Leaf', title: 'Ủ phân hữu cơ', text: 'Có thể dùng để ủ rơm rạ, cám gạo, phân chuồng... thành phân bón hữu cơ.' },
+    ],
+
+    suitableWhen: [
+      { icon: 'AlertCircle', title: 'Đất bạc màu, chai cứng', desc: 'Phù hợp cho đất bạc màu, nhiễm phèn hoặc chai cứng sau nhiều vụ dùng hóa chất.' },
+      { icon: 'Sprout', title: 'Đất tồn dư hóa chất', desc: 'Hỗ trợ phân giải kim loại nặng và hóa chất tồn dư trong đất canh tác.' },
+      { icon: 'Shield', title: 'Trước khi vào vụ mới', desc: 'Thích hợp cải tạo đất trước khi xuống giống vụ mới, đặc biệt vùng đất phèn, mặn.' },
+      { icon: 'Droplets', title: 'Đất khô hạn cục bộ', desc: 'Hỗ trợ giữ ẩm cho đất trong điều kiện khô hạn quanh vùng rễ.' },
+      { icon: 'Leaf', title: 'Cần ủ phân hữu cơ', desc: 'Phù hợp khi cần ủ rơm rạ, cám gạo hoặc phân chuồng thành phân bón.' },
+    ],
+
+    specification: {
+      nhomSanPham: 'Chế phẩm sinh học cải tạo đất',
+      quyCach: 'Chai 1 Lít',
+      dangSanPham: 'Dung dịch lỏng',
+      xuatXu: 'Việt Nam',
+    },
+  },
+
+  'lasting-khang-nam-tuyen-trung': {
+    overview:
+      'LASTING Kháng Nấm – Tuyến Trùng hỗ trợ kiểm soát nấm bệnh và tuyến trùng, đồng thời giúp cây phát triển bộ rễ khỏe, phục hồi sau giai đoạn bị ảnh hưởng và cải thiện môi trường đất. Hữu cơ an toàn — lành tính — phù hợp sử dụng cho nhiều loại cây trồng.\n\nSản phẩm giúp tăng sức đề kháng cho cây trồng, chống các chủng nấm và vi khuẩn có hại như nấm Phytophthora, nấm Fusarium và tuyến trùng gây nứt thân xì mủ, nấm phấn hồng, đồng thời ngăn ngừa bệnh hại như sùng, hà cho cây khoai lang.',
+
+    ingredientItems: [
+      { label: 'VSV phân giải Xenllulo', value: '1x10⁸ CFU/ml' },
+      { label: 'Vi sinh vật có lợi', value: 'Bacillus, Trichoderma, Enzyme' },
+      { label: 'Thảo dược truyền thống', value: 'Có' },
+      { label: 'Thể tích thực', value: '1 lít' },
+    ],
+    ingredientNote: 'Thông tin thành phần được trình bày theo công bố trên bao bì sản phẩm.',
+
+    benefitItems: [
+      'Tăng sức đề kháng cho cây trồng, chống các chủng nấm và vi khuẩn có hại như nấm Phytophthora, nấm Fusarium.',
+      'Kháng tuyến trùng gây nứt thân xì mủ, nấm phấn hồng.',
+      'Giúp cây có nội vi sinh chống lại các điều kiện thời tiết bất thường.',
+      'Ngăn ngừa bệnh hại như sùng, hà cho cây khoai lang.',
+      'Hỗ trợ phát triển bộ rễ khỏe, khử phèn và cải tạo đất.',
+    ],
+
+    usageSteps: [
+      'Lắc đều chai Lasting trước khi pha.',
+      'Pha theo liều lượng ở bảng dưới tùy nhóm cây trồng.',
+      'Tưới ướt đẫm vùng bị nấm/tuyến trùng, nứt thân, xì mủ để vi sinh dễ lưu dẫn.',
+      'Dưới mặt đất, dùng dụng cụ hỗ trợ (cây ba chĩa) xăm đều quanh gốc và dưới tán lá để tạo đường dẫn cho vi sinh thẩm thấu.',
+      'Cây thân gỗ không cần cạo vỏ khi tưới, chỉ cần tưới đẫm vùng cổ rễ, nơi nứt thân xì mủ và dưới tán lá.',
+      'Tưới vào sáng sớm hoặc chiều mát. Không pha chung với thuốc trừ sâu, thuốc có gốc đồng.',
+    ],
+    dosageTable: [
+      { crop: 'Cây thân gỗ (sầu riêng, chè, cà phê)', dosage: '1 lít / 100–200 lít nước, tưới lá và xung quanh gốc' },
+      { crop: 'Cây rau màu, cây thân dây (hồ tiêu, chanh dây, khổ qua, bầu bí, dưa, khoai lang, các loại đậu...)', dosage: '1 lít / 200–400 lít nước, tưới lá và xung quanh gốc' },
+    ],
+
+    storageItems: [
+      'Nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp.',
+      'Đậy nắp sau khi sử dụng.',
+      'Lắc đều trước khi pha.',
+      'Hạn sử dụng: 24 tháng kể từ ngày sản xuất, 6 tháng sau khi mở nắp.',
+      'Sau khi pha với nước: không để dung dịch quá 7 ngày.',
+    ],
+    warningNote:
+      'Không pha chung với thuốc trừ sâu hoặc thuốc có gốc đồng. Có thể điều chỉnh liều lượng phù hợp với tình trạng cây trồng, thổ nhưỡng đất canh tác và kinh nghiệm thực tế của người trồng.\n\n' +
+      COMMON_WARNING,
+
+    quickInfo: {
+      thanhPhan: 'VSV Xenllulo, Bacillus, Trichoderma',
+      xuatXu: 'Việt Nam',
+      quyCach: 'Chai 1 Lít',
+      dang: 'Dạng lỏng',
+      congDung: 'Kháng nấm, tuyến trùng, bật rễ',
+      baoQuan: 'Nơi khô ráo, đậy nắp sau dùng',
+    },
+
+    benefits: [
+      { icon: 'Shield', title: 'Kháng nấm, tuyến trùng', text: 'Chống các chủng nấm Phytophthora, Fusarium và tuyến trùng gây nứt thân xì mủ.' },
+      { icon: 'Droplets', title: 'Khử phèn, cải tạo đất', text: 'Góp phần cải thiện môi trường đất chua phèn, tạo điều kiện tốt cho cây trồng.' },
+      { icon: 'Sprout', title: 'Phát triển bộ rễ khỏe', text: 'Hỗ trợ cây phát triển bộ rễ khỏe, phục hồi sau giai đoạn bị ảnh hưởng.' },
+      { icon: 'Leaf', title: 'Tăng sức đề kháng', text: 'Giúp cây có nội vi sinh chống lại các điều kiện thời tiết bất thường.' },
+    ],
+
+    suitableWhen: [
+      { icon: 'AlertCircle', title: 'Nứt thân, xì mủ', desc: 'Phù hợp khi cây (đặc biệt sầu riêng) có dấu hiệu nứt thân, xì mủ do nấm hoặc tuyến trùng.' },
+      { icon: 'Shield', title: 'Nhiễm nấm Phytophthora, Fusarium', desc: 'Hỗ trợ kiểm soát các chủng nấm gây hại phổ biến trên cây ăn trái, cây công nghiệp.' },
+      { icon: 'Sprout', title: 'Bộ rễ suy yếu', desc: 'Phù hợp khi cây cần phục hồi bộ rễ sau giai đoạn bị nấm, tuyến trùng tấn công.' },
+      { icon: 'Leaf', title: 'Đất nhiễm phèn', desc: 'Hỗ trợ khử phèn và cải tạo môi trường đất cho cây trồng.' },
+      { icon: 'Droplets', title: 'Khoai lang bị sùng, hà', desc: 'Ngăn ngừa bệnh hại như sùng, hà thường gặp trên cây khoai lang.' },
+    ],
+
+    specification: {
+      nhomSanPham: 'Chế phẩm sinh học bảo vệ rễ / cải tạo đất',
+      quyCach: 'Chai 1 Lít',
+      dangSanPham: 'Dung dịch lỏng',
+      xuatXu: 'Việt Nam',
+    },
+  },
+
+  'bumper-duong': {
+    overview:
+      'BUMPER Dưỡng Trái bổ sung dưỡng chất giúp nuôi trái lớn nhanh, căng bóng, nặng ký — tăng độ ngọt tự nhiên — trái đồng đều, nâng cao giá trị nông sản. Giải pháp sinh học an toàn, hiệu quả cho cây trồng và đất canh tác lâu dài, hữu cơ an toàn — lành tính.\n\nChuyên dùng cho cây công nghiệp, dược liệu, cây ăn quả, cây lương thực, lúa và rau củ quả — thúc đẩy quá trình sinh trưởng, tổng hợp trao đổi chất, tăng sức đề kháng và giảm tỷ lệ thất thoát nông sản.',
+
+    ingredientItems: [
+      { label: 'VSV phân giải Xenllulo', value: '0,1x10⁸ CFU/ml' },
+      { label: 'Nguyên liệu', value: 'Đạm tôm, bánh dầu, rong biển, nha đam' },
+      { label: 'Vi sinh chuyên dùng', value: 'Bacillus, Trichoderma, Enzyme' },
+      { label: 'Thể tích thực', value: '1 lít' },
+    ],
+    ingredientNote: 'Thông tin thành phần được trình bày theo công bố trên bao bì sản phẩm.',
+
+    benefitItems: [
+      'Thúc đẩy quá trình sinh trưởng, tổng hợp trao đổi chất cho các loại cây và củ.',
+      'Tăng sức đề kháng, giúp cây phát triển, củ và trái to, sáng bóng, có trọng lượng.',
+      'Tăng hương vị tự nhiên, trái ngọt và đồng đều hơn.',
+      'Giảm tỷ lệ thất thoát nông sản.',
+    ],
+
+    usageSteps: [
+      'Lắc đều chai Bumper Dưỡng Trái trước khi pha.',
+      'Tưới nước trước cho cây ẩm ướt để tạo đường dẫn cho vi sinh thẩm thấu.',
+      'Pha và tưới gốc theo đúng nhóm cây, liều lượng và chu kỳ ở bảng dưới.',
+      'Tưới vào sáng sớm hoặc chiều mát.',
+      'Không pha chung với thuốc trừ sâu, thuốc có gốc đồng.',
+    ],
+    dosageTable: [
+      { crop: 'Cây trồng lâu năm (sầu riêng, điều, chè, cà phê, ca cao, xoài, bưởi, thanh long...) — cây trưởng thành', dosage: 'Pha 1 lít/200–400 lít nước, tưới gốc 10–15 lít dung dịch/cây, chu kỳ 15–20 ngày/lần' },
+      { crop: 'Cây trồng lâu năm — cây vừa và nhỏ', dosage: 'Pha 1 lít/200–400 lít nước, tưới gốc 5–10 lít dung dịch/cây, chu kỳ 15–20 ngày/lần' },
+      { crop: 'Cây thân dây (hồ tiêu, chanh dây, bầu, bí, khổ qua, ớt, các loại dưa, khoai lang...)', dosage: 'Pha 1 lít/400–600 lít nước, tưới gốc 50–100 lít/1.000m², chu kỳ 10–15 ngày/lần' },
+      { crop: 'Cây rau màu (bắp cải, xà lách, các loại cải, rau thơm, cây gia vị, hành lá...)', dosage: 'Pha 1 lít/600–800 lít nước, tưới gốc 40–60 lít/1.000m², chu kỳ 7–10 ngày/lần' },
+    ],
+
+    storageItems: [
+      'Nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp.',
+      'Đậy nắp sau khi sử dụng.',
+      'Lắc đều trước khi pha.',
+      'Hạn sử dụng: 24 tháng kể từ ngày sản xuất, 6 tháng sau khi mở nắp.',
+      'Sau khi pha với nước: không để dung dịch quá 7 ngày.',
+    ],
+    warningNote:
+      'Không pha chung với thuốc trừ sâu hoặc thuốc có gốc đồng. Có thể điều chỉnh liều lượng phù hợp với tình trạng cây trồng, thổ nhưỡng đất canh tác và kinh nghiệm thực tế của người trồng.\n\n' +
+      COMMON_WARNING,
+
+    quickInfo: {
+      thanhPhan: 'VSV Xenllulo, đạm tôm, rong biển',
+      xuatXu: 'Việt Nam',
+      quyCach: 'Chai 1 Lít',
+      dang: 'Dạng lỏng',
+      congDung: 'Dưỡng trái, to trái, ngọt trái',
+      baoQuan: 'Nơi khô ráo, đậy nắp sau dùng',
+    },
+
+    benefits: [
+      { icon: 'Sun', title: 'To trái, căng bóng', text: 'Giúp trái lớn nhanh, căng bóng, nặng ký và có trọng lượng tốt hơn.' },
+      { icon: 'Zap', title: 'Tăng độ ngọt tự nhiên', text: 'Hỗ trợ tổng hợp trao đổi chất giúp trái tăng hương vị và độ ngọt tự nhiên.' },
+      { icon: 'Sprout', title: 'Trái đồng đều', text: 'Góp phần giúp trái phát triển đồng đều trên toàn bộ cây trồng.' },
+      { icon: 'Leaf', title: 'Giảm thất thoát', text: 'Tăng sức đề kháng cho cây, giúp giảm tỷ lệ thất thoát nông sản.' },
+    ],
+
+    suitableWhen: [
+      { icon: 'Sun', title: 'Giai đoạn nuôi trái', desc: 'Phù hợp sử dụng đúng giai đoạn cây đang nuôi trái, cần bổ sung dưỡng chất.' },
+      { icon: 'Zap', title: 'Trái nhỏ, chưa đều', desc: 'Hỗ trợ khi trái phát triển không đều hoặc kích thước chưa đạt kỳ vọng.' },
+      { icon: 'Leaf', title: 'Muốn nâng chất lượng', desc: 'Phù hợp khi muốn cải thiện độ ngọt, trọng lượng và hương vị nông sản trước thu hoạch.' },
+      { icon: 'Sprout', title: 'Cây ăn trái, cây lâu năm', desc: 'Thích hợp cho sầu riêng, xoài, bưởi, thanh long và các cây ăn trái khác trong giai đoạn nuôi trái.' },
+      { icon: 'AlertCircle', title: 'Tỷ lệ thất thoát cao', desc: 'Hỗ trợ giảm tỷ lệ thất thoát nông sản nhờ tăng sức đề kháng cho cây.' },
+    ],
+
+    specification: {
+      nhomSanPham: 'Chế phẩm sinh học dưỡng trái',
+      quyCach: 'Chai 1 Lít',
+      dangSanPham: 'Dung dịch lỏng',
+      xuatXu: 'Việt Nam',
+    },
+  },
 }
 
 export default details

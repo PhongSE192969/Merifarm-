@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Leaf, ShoppingCart } from 'lucide-react'
 import products from '../../data/products.json'
 import { useCartStore } from '../../store/cartStore'
-import { formatPrice } from '../../utils/format'
+import PriceTag from './PriceTag'
 
 export default function FeaturedProductsSection() {
   const featured = products.filter((product) => product.tags?.includes('ban-chay'))
@@ -76,7 +76,7 @@ export default function FeaturedProductsSection() {
           <article className="animate-featured-promote flex min-h-[520px] flex-col overflow-hidden rounded-[22px] border border-primary/20 bg-gradient-to-br from-white via-soft-green/35 to-gold-soft/35 p-6 md:p-8">
             <Link
               to={`/san-pham/${primaryProduct.slug}`}
-              className="flex min-h-0 flex-1 items-center justify-center"
+              className="relative flex min-h-0 flex-1 items-center justify-center"
             >
               <img
                 key={primaryProduct.id}
@@ -84,6 +84,11 @@ export default function FeaturedProductsSection() {
                 alt={primaryProduct.name}
                 className="h-72 w-full object-contain transition-transform duration-500 hover:scale-105 md:h-80"
               />
+              {!primaryProduct.inStock && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                  <span className="rounded-full bg-white px-4 py-1 text-sm font-semibold shadow-sm">Hết hàng</span>
+                </div>
+              )}
             </Link>
 
             <div className="mt-5 border-t border-primary/10 pt-5">
@@ -100,9 +105,11 @@ export default function FeaturedProductsSection() {
                 <span>{primaryProduct.shortDescription}</span>
               </p>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-                <span className="text-3xl font-extrabold text-primary">
-                  {formatPrice(primaryProduct.price)}
-                </span>
+                <PriceTag
+                  price={primaryProduct.price}
+                  originalPrice={primaryProduct.originalPrice}
+                  className="text-3xl font-extrabold"
+                />
                 <div className="flex items-center gap-3">
                   <Link
                     to={`/san-pham/${primaryProduct.slug}`}
@@ -112,9 +119,10 @@ export default function FeaturedProductsSection() {
                   </Link>
                   <button
                     type="button"
+                    disabled={!primaryProduct.inStock}
                     onClick={() => handleAdd(primaryProduct)}
                     aria-label={`Thêm ${primaryProduct.name} vào giỏ`}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-primary bg-white text-primary transition-colors hover:bg-primary hover:text-white"
+                    className="flex h-12 w-12 items-center justify-center rounded-full border border-primary bg-white text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-white disabled:text-gray-300"
                   >
                     <ShoppingCart size={21} />
                   </button>
@@ -131,13 +139,18 @@ export default function FeaturedProductsSection() {
               >
                 <Link
                   to={`/san-pham/${product.slug}`}
-                  className="flex min-h-0 flex-1 items-center justify-center bg-gradient-to-b from-white to-soft-green/20 p-4"
+                  className="relative flex min-h-0 flex-1 items-center justify-center bg-gradient-to-b from-white to-soft-green/20 p-4"
                 >
                   <img
                     src={product.image}
                     alt={product.name}
                     className="h-28 w-full object-contain transition-transform duration-300 hover:scale-105 md:h-32"
                   />
+                  {!product.inStock && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                      <span className="rounded-full bg-white px-3 py-0.5 text-xs font-semibold shadow-sm">Hết hàng</span>
+                    </div>
+                  )}
                 </Link>
                 <div className="border-t border-primary/10 bg-white p-4">
                   <p className="text-[11px] font-bold uppercase tracking-wide text-faint">
@@ -149,14 +162,17 @@ export default function FeaturedProductsSection() {
                     </h3>
                   </Link>
                   <div className="mt-2 flex items-center justify-between gap-2">
-                    <span className="text-xl font-extrabold text-primary">
-                      {formatPrice(product.price)}
-                    </span>
+                    <PriceTag
+                      price={product.price}
+                      originalPrice={product.originalPrice}
+                      className="text-xl font-extrabold"
+                    />
                     <button
                       type="button"
+                      disabled={!product.inStock}
                       onClick={() => handleAdd(product)}
                       aria-label={`Thêm ${product.name} vào giỏ`}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/70 bg-white text-primary transition-colors hover:bg-primary hover:text-white"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/70 bg-white text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-white disabled:text-gray-300"
                     >
                       <ShoppingCart size={18} />
                     </button>
