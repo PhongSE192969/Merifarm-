@@ -38,7 +38,7 @@ const BANK_INFO = {
   bank: 'Ngân hàng MB Bank - Ngân hàng Thương mại cổ phần Quân đội',
   accountNumber: '952076868',
   accountHolder: 'CONG TY TNHH CONG NGHE DVP-DEDITECH',
-  qrImage: '/payment/qr-mbbank.jpg',
+  qrImage: '/payment/qr-mbbank.png',
 }
 
 const PAYMENT_OPTIONS = [
