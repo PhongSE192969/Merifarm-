@@ -417,20 +417,20 @@ export default function ProductDetailPage() {
                   </div>
                   <div className="flex flex-1 gap-2">
                     <Button
-                      onClick={handleBuyNow}
-                      variant="accent"
-                      className="flex-1"
-                    >
-                      <Wallet size={18} />
-                      Mua ngay
-                    </Button>
-                    <Button
                       onClick={handleAddToCart}
-                      variant={added ? 'accent' : 'primary'}
+                      variant={added ? 'solidPrimary' : 'solidAccent'}
                       className="flex-1 transition-all duration-300"
                     >
                       <ShoppingCart size={18} />
                       {added ? 'Đã thêm!' : 'Thêm vào giỏ'}
+                    </Button>
+                    <Button
+                      onClick={handleBuyNow}
+                      variant="solidPrimary"
+                      className="flex-1"
+                    >
+                      <Wallet size={18} />
+                      Mua ngay
                     </Button>
                   </div>
                 </div>
@@ -663,13 +663,13 @@ export default function ProductDetailPage() {
                 <Plus size={14} />
               </button>
             </div>
-            <Button onClick={handleBuyNow} variant="accent" className="flex-1 py-2.5 text-sm">
-              <Wallet size={16} />
-              Mua ngay
-            </Button>
-            <Button onClick={handleAddToCart} variant={added ? 'accent' : 'primary'} className="flex-1 py-2.5 text-sm">
+            <Button onClick={handleAddToCart} variant={added ? 'solidPrimary' : 'solidAccent'} className="flex-1 py-2.5 text-sm">
               <ShoppingCart size={16} />
               {added ? 'Đã thêm!' : 'Thêm vào giỏ'}
+            </Button>
+            <Button onClick={handleBuyNow} variant="solidPrimary" className="flex-1 py-2.5 text-sm">
+              <Wallet size={16} />
+              Mua ngay
             </Button>
           </div>
         </div>

@@ -35,9 +35,10 @@ const DELIVERY_OPTIONS = [
 
 const BANK_INFO = {
   company: 'CÔNG TY TNHH CÔNG NGHỆ DVP-DEDITECH',
-  bank: 'Vietcombank – CN TP. Hồ Chí Minh',
-  accountNumber: '0071000123456',
+  bank: 'Ngân hàng MB Bank - Ngân hàng Thương mại cổ phần Quân đội',
+  accountNumber: '952076868',
   accountHolder: 'CONG TY TNHH CONG NGHE DVP-DEDITECH',
+  qrImage: '/payment/qr-mbbank.jpg',
 }
 
 const PAYMENT_OPTIONS = [
@@ -337,6 +338,9 @@ export default function CartPage() {
     return pollAttemptsRef.current >= 3
   }
 
+  const originalSubtotal = items.reduce((sum, i) => sum + (i.originalPrice ?? i.price ?? 0) * i.qty, 0)
+  const productDiscount = Math.max(originalSubtotal - totalPrice, 0)
+
   const shipping = items.length === 0 ? 0 : ESTIMATED_SHIPPING
   const discount = coupon
     ? (coupon.type === 'fixed' ? coupon.value : Math.round((totalPrice * coupon.value) / 100))
@@ -466,6 +470,13 @@ export default function CartPage() {
       setErrors(errs)
       const first = formRef.current?.querySelector('[data-error="true"]')
       first?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+
+    if (form.paymentMethod === 'transfer') {
+      pollAttemptsRef.current = 0
+      setTransferStatus('idle')
+      setShowTransferModal(true)
       return
     }
 
@@ -798,32 +809,47 @@ export default function CartPage() {
                   <h2 className="font-semibold text-ink">Tóm tắt đơn hàng</h2>
                 </div>
                 <div className="p-5 space-y-3">
-                  {/* Item lines */}
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                      <span className="flex-1 text-secondary line-clamp-1">
-                        {item.name} <span className="text-faint">×{item.qty}</span>
-                      </span>
-                      <span className="shrink-0 font-medium text-ink">
-                        {item.price ? formatPrice(item.price * item.qty) : 'Báo giá'}
-                      </span>
-                    </div>
-                  ))}
+                  {/* Item lines — always shown at the original (pre-discount) price */}
+                  {items.map((item) => {
+                    const lineOriginalPrice = item.originalPrice ?? item.price
+                    return (
+                      <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
+                        <span className="flex-1 text-secondary line-clamp-1">
+                          {item.name} <span className="text-faint">×{item.qty}</span>
+                        </span>
+                        <span className="shrink-0 font-medium text-ink">
+                          {lineOriginalPrice ? formatPrice(lineOriginalPrice * item.qty) : 'Báo giá'}
+                        </span>
+                      </div>
+                    )
+                  })}
                   <div className="border-t border-soft pt-3 space-y-2">
+                    {productDiscount > 0 && (
+                      <>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-secondary">Giá gốc sản phẩm</span>
+                          <span className="font-medium text-faint line-through">{formatPrice(originalSubtotal)}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-secondary">Khuyến mãi</span>
+                          <span className="font-medium text-red-600">−{formatPrice(productDiscount)}</span>
+                        </div>
+                      </>
+                    )}
+                    {coupon && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-secondary">Ưu đãi ({coupon.code})</span>
+                        <span className="font-medium text-primary">−{formatPrice(discount)}</span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-secondary">Tiền sản phẩm</span>
                       <span className="font-medium text-ink">{formatPrice(totalPrice)}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-secondary">Phí vận chuyển tạm tính</span>
+                      <span className="text-secondary">Phí vận chuyển</span>
                       <span className="font-medium text-ink">{formatPrice(shipping)}</span>
                     </div>
-                    {coupon && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-secondary">Giảm giá ({coupon.code})</span>
-                        <span className="font-medium text-primary">−{formatPrice(discount)}</span>
-                      </div>
-                    )}
                   </div>
                   <div className="border-t border-soft pt-3">
                     <div className="flex items-center justify-between">
@@ -913,11 +939,6 @@ export default function CartPage() {
                       onChange={(v) => {
                         setForm((f) => ({ ...f, paymentMethod: v }))
                         setErrors((e) => ({ ...e, paymentMethod: undefined }))
-                        if (v === 'transfer') {
-                          pollAttemptsRef.current = 0
-                          setTransferStatus('idle')
-                          setShowTransferModal(true)
-                        }
                       }}
                       placeholder="— Chọn phương thức thanh toán —"
                       error={errors.paymentMethod}
@@ -1205,10 +1226,8 @@ export default function CartPage() {
                   <div className="flex flex-col items-center justify-center gap-3">
                     <div className="relative h-[190px] w-[190px] overflow-hidden rounded-xl border border-soft">
                       <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encodeURIComponent(
-                          `Ngan hang: ${BANK_INFO.bank} | STK: ${BANK_INFO.accountNumber} | So tien: ${estimated} | ND: Thanh toan Merifarm`
-                        )}`}
-                        alt="Mã QR thanh toán"
+                        src={BANK_INFO.qrImage}
+                        alt="Mã QR thanh toán MB Bank"
                         className="h-full w-full object-contain p-2"
                       />
                       {transferStatus === 'idle' && (

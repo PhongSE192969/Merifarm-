@@ -77,7 +77,7 @@ const details = {
 
     quickInfo: {
       thanhPhan: 'Mg, Bo, Kẽm, Fe, Mn',
-      xuatXu: 'Đang cập nhật',
+      xuatXu: 'Việt Nam',
       dang: 'Bột hòa tan',
       congDung: 'Lớn trái, đẹp màu, ra rễ',
       baoQuan: 'Nơi khô ráo, thoáng mát',
@@ -102,7 +102,7 @@ const details = {
       nhomSanPham: 'Phân bón lá',
       quyCach: 'Gói 500g',
       dangSanPham: 'Bột hòa tan',
-      xuatXu: 'Đang cập nhật',
+      xuatXu: 'Việt Nam',
     },
   },
 
@@ -211,7 +211,7 @@ const details = {
 
     quickInfo: {
       thanhPhan: 'NPK 10-4-4 K4P',
-      xuatXu: 'Nguyên liệu ngoại nhập',
+      xuatXu: 'Việt Nam',
       dang: 'Dạng lỏng',
       congDung: 'Ra rễ, đẻ nhánh, hạ phèn',
       baoQuan: 'Nơi khô ráo, lắc đều trước dùng',
@@ -236,7 +236,7 @@ const details = {
       nhomSanPham: 'Phân bón rễ / NPK',
       quyCach: 'Chai 250ml',
       dangSanPham: 'Dạng lỏng (nước)',
-      xuatXu: 'Nguyên liệu ngoại nhập',
+      xuatXu: 'Việt Nam',
     },
   },
 
@@ -276,7 +276,7 @@ const details = {
 
     quickInfo: {
       thanhPhan: 'NPK (Phân bón lúa LM 17)',
-      xuatXu: 'Đang cập nhật',
+      xuatXu: 'Việt Nam',
       dang: 'Dạng lỏng',
       congDung: 'Xanh lá, cứng cây, vào gạo',
       baoQuan: 'Nơi khô ráo, lắc đều trước dùng',
@@ -301,7 +301,7 @@ const details = {
       nhomSanPham: 'Phân bón lá / NPK',
       quyCach: 'Chai 250ml',
       dangSanPham: 'Dạng lỏng (nước)',
-      xuatXu: 'Đang cập nhật',
+      xuatXu: 'Việt Nam',
     },
   },
 
@@ -345,7 +345,7 @@ const details = {
 
     quickInfo: {
       thanhPhan: 'NPK 4-12-10 (Lùm 12)',
-      xuatXu: 'Đang cập nhật',
+      xuatXu: 'Việt Nam',
       dang: 'Dạng lỏng',
       congDung: 'Lùn cây, cứng thân, rước đòng',
       baoQuan: 'Nơi khô ráo, lắc đều trước dùng',
@@ -370,7 +370,7 @@ const details = {
       nhomSanPham: 'Phân bón NPK',
       quyCach: 'Chai 250ml',
       dangSanPham: 'Dạng lỏng (nước)',
-      xuatXu: 'Đang cập nhật',
+      xuatXu: 'Việt Nam',
     },
   },
 
