@@ -14,12 +14,14 @@ import ChinhSachGiaoHangPage from './pages/policy/ChinhSachGiaoHangPage'
 import ChinhSachDoiTraPage from './pages/policy/ChinhSachDoiTraPage'
 import ChinhSachBaoMatPage from './pages/policy/ChinhSachBaoMatPage'
 import OrderSuccessPage from './pages/OrderSuccessPage'
+import AdminRoutes from '../quan-ly/fe/routes/AdminRoutes'
 
 function App() {
   return (
     <>
       <ScrollToTop />
       <Routes>
+      <Route path="/quan-ly/*" element={<AdminRoutes />} />
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/gioi-thieu" element={<AboutPage />} />

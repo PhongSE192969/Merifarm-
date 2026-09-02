@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Leaf, ShoppingCart } from 'lucide-react'
-import products from '../../data/products.json'
+import { listProducts } from '../../services/productsService'
 import { useCartStore } from '../../store/cartStore'
 import PriceTag from './PriceTag'
 
 export default function FeaturedProductsSection() {
+  const [products, setProducts] = useState([])
   const featured = products.filter((product) => product.tags?.includes('ban-chay'))
   const [activeIndex, setActiveIndex] = useState(1)
   const addItem = useCartStore((state) => state.addItem)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    listProducts().then(setProducts).catch(() => setProducts([]))
+  }, [])
 
   const handleAdd = (product) => {
     addItem(product, 1)

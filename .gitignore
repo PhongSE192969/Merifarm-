@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Khóa kết nối Supabase — không đưa lên Git
+.env
+.env.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

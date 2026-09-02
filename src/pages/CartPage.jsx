@@ -6,39 +6,49 @@ import {
   ChevronDown, Search, X, PenLine, CheckCircle2, Copy, Loader2,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
+import FormField, { inputCls } from '../components/ui/FormField'
+import OptionPicker from '../components/ui/OptionPicker'
 import { useCartStore } from '../store/cartStore'
 import { formatPrice } from '../utils/format'
 import { VIETNAM_PROVINCES_2025, getWardOptionsByProvince } from '../data/vietnam-address-2025'
+import * as couponsService from '../services/couponsService'
+import * as ordersService from '../services/ordersService'
+import * as settingsService from '../services/settingsService'
 
 const ESTIMATED_SHIPPING = 30000
 
-const COUPONS = {
-  QUOCANH: { type: 'fixed', value: 50000 },
-  DUYPHONG: { type: 'fixed', value: 50000 },
-  MERIFARM: { type: 'percent', value: 5 },
-}
-
-const DELIVERY_OPTIONS = [
-  {
-    value: 'delivery', icon: Truck, label: 'Giao hàng tận nơi',
-    sublabel: 'Merifarm sẽ xác nhận phí vận chuyển theo địa chỉ thực tế.',
-  },
-  {
-    value: 'pickup', icon: Store, label: 'Nhận tại kho / cửa hàng',
-    sublabel: 'Số 5-7, Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh.',
-  },
-  {
-    value: 'consult', icon: PhoneCall, label: 'Cần Merifarm tư vấn trước khi giao',
-    sublabel: 'Nhân viên sẽ liên hệ tư vấn và thống nhất lịch giao hàng.',
-  },
-]
-
-const BANK_INFO = {
+// Dùng khi chưa tải được cài đặt thanh toán / kho vận từ Supabase (mất mạng, chưa cấu hình...).
+const FALLBACK_BANK_INFO = {
   company: 'CÔNG TY TNHH CÔNG NGHỆ DVP-DEDITECH',
   bank: 'Ngân hàng MB Bank - Ngân hàng Thương mại cổ phần Quân đội',
   accountNumber: '952076868',
   accountHolder: 'CONG TY TNHH CONG NGHE DVP-DEDITECH',
   qrImage: '/payment/qr-mbbank.png',
+}
+
+const FALLBACK_WAREHOUSE = {
+  address: 'Số 5-7, Đường số 32, Phường Bình Phú',
+  province: 'TP. Hồ Chí Minh',
+  phone1: '0981798065',
+  phone2: '0782861873',
+}
+
+function buildDeliveryOptions(w) {
+  const fullAddress = [w.address, w.province].filter(Boolean).join(', ')
+  return [
+    {
+      value: 'delivery', icon: Truck, label: 'Giao hàng tận nơi',
+      sublabel: 'Merifarm sẽ xác nhận phí vận chuyển theo địa chỉ thực tế.',
+    },
+    {
+      value: 'pickup', icon: Store, label: 'Nhận tại kho / cửa hàng',
+      sublabel: fullAddress ? `${fullAddress}.` : 'Merifarm sẽ gửi địa chỉ nhận hàng.',
+    },
+    {
+      value: 'consult', icon: PhoneCall, label: 'Cần Merifarm tư vấn trước khi giao',
+      sublabel: 'Nhân viên sẽ liên hệ tư vấn và thống nhất lịch giao hàng.',
+    },
+  ]
 }
 
 const PAYMENT_OPTIONS = [
@@ -51,32 +61,6 @@ const PAYMENT_OPTIONS = [
     sublabel: 'Thanh toán trực tuyến',
   },
 ]
-
-// ─── Inline sub-components ───────────────────────────────────────────────────
-
-function FormField({ label, required, error, children }) {
-  return (
-    <div>
-      <label className="mb-1.5 block text-sm font-medium text-ink">
-        {label}
-        {required && <span className="ml-0.5 text-red-500">*</span>}
-      </label>
-      {children}
-      {error && (
-        <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
-          <AlertCircle size={12} />
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
-
-function inputCls(error) {
-  return `w-full rounded-xl border px-3.5 py-2.5 text-sm text-ink outline-none transition-colors duration-150
-    ${error ? 'border-red-400 focus:border-red-500' : 'border-soft focus:border-primary'}
-    placeholder:text-faint disabled:bg-[#F3F3F3] disabled:cursor-not-allowed`
-}
 
 // ─── SearchableSelect ────────────────────────────────────────────────────────
 // options: string[] — list of known option names
@@ -223,79 +207,6 @@ function SearchableSelect({ options, value, onChange, placeholder, disabled, err
   )
 }
 
-// ─── OptionPicker ────────────────────────────────────────────────────────────
-// Compact select-style trigger that expands into a list of icon/label/sublabel
-// options (used for delivery method & payment method, instead of a full stacked
-// radio-card list).
-
-function OptionPicker({ options, value, onChange, placeholder, error }) {
-  const [open, setOpen] = useState(false)
-  const containerRef = useRef(null)
-  const selected = options.find((o) => o.value === value)
-
-  useEffect(() => {
-    if (!open) return
-    function close(e) {
-      if (!containerRef.current?.contains(e.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
-  }, [open])
-
-  const borderCls = error
-    ? 'border-red-400 focus-within:border-red-500'
-    : 'border-soft focus-within:border-primary'
-
-  return (
-    <div ref={containerRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-colors duration-150 bg-white hover:border-primary/60 ${borderCls}`}
-      >
-        {selected?.icon && <selected.icon size={16} className="shrink-0 text-primary" />}
-        <span className={`flex-1 truncate text-sm font-medium ${selected ? 'text-ink' : 'text-faint font-normal'}`}>
-          {selected ? selected.label : placeholder}
-        </span>
-        <ChevronDown
-          size={15}
-          className={`shrink-0 text-faint transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {selected?.sublabel && !open && (
-        <p className="mt-1.5 text-xs text-secondary">{selected.sublabel}</p>
-      )}
-
-      {open && (
-        <div className="absolute z-30 mt-1.5 w-full overflow-hidden rounded-xl border border-soft bg-white shadow-lg">
-          {options.map((opt) => {
-            const checked = opt.value === value
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => { onChange(opt.value); setOpen(false) }}
-                className={`flex w-full items-start gap-3 border-b border-soft px-4 py-3 text-left transition-colors last:border-b-0
-                  ${checked ? 'bg-soft-green/50' : 'hover:bg-[#F8F5F0]'}`}
-              >
-                {opt.icon && (
-                  <opt.icon size={16} className={`mt-0.5 shrink-0 ${checked ? 'text-primary' : 'text-faint'}`} />
-                )}
-                <div className="flex-1">
-                  <p className={`text-sm font-semibold ${checked ? 'text-primary-dark' : 'text-ink'}`}>{opt.label}</p>
-                  {opt.sublabel && <p className="mt-0.5 text-xs text-secondary">{opt.sublabel}</p>}
-                </div>
-                {checked && <span className="mt-0.5 shrink-0 text-primary">✓</span>}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function CartPage() {
@@ -324,12 +235,44 @@ export default function CartPage() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
   const [coupon, setCoupon] = useState(null)
   const [couponError, setCouponError] = useState('')
+  const [couponChecking, setCouponChecking] = useState(false)
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [showTransferModal, setShowTransferModal] = useState(false)
   const [transferStatus, setTransferStatus] = useState('idle') // idle | checking | success
+  const [bankInfo, setBankInfo] = useState(FALLBACK_BANK_INFO)
+  const [warehouse, setWarehouse] = useState(FALLBACK_WAREHOUSE)
   const formRef = useRef(null)
   const pollAttemptsRef = useRef(0)
+
+  useEffect(() => {
+    let cancelled = false
+    settingsService.getPaymentSettings()
+      .then((settings) => {
+        if (cancelled || !settings) return
+        setBankInfo({
+          company: FALLBACK_BANK_INFO.company,
+          bank: settings.bankName || FALLBACK_BANK_INFO.bank,
+          accountNumber: settings.accountNumber || FALLBACK_BANK_INFO.accountNumber,
+          accountHolder: settings.accountHolder || FALLBACK_BANK_INFO.accountHolder,
+          qrImage: settings.qrImage || FALLBACK_BANK_INFO.qrImage,
+        })
+      })
+      .catch(() => {}) // giữ nguyên thông tin mặc định nếu chưa cấu hình Supabase
+    settingsService.getWarehouseSettings()
+      .then((w) => {
+        if (cancelled || !w) return
+        setWarehouse({
+          address: w.address || FALLBACK_WAREHOUSE.address,
+          province: w.province || FALLBACK_WAREHOUSE.province,
+          phone1: w.phone1 || FALLBACK_WAREHOUSE.phone1,
+          phone2: w.phone2 || FALLBACK_WAREHOUSE.phone2,
+        })
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   // Demo-only stand-in for the backend payment webhook/poll endpoint — remove
   // once real payment gateway integration is wired up.
@@ -337,6 +280,8 @@ export default function CartPage() {
     pollAttemptsRef.current += 1
     return pollAttemptsRef.current >= 3
   }
+
+  const deliveryOptions = buildDeliveryOptions(warehouse)
 
   const originalSubtotal = items.reduce((sum, i) => sum + (i.originalPrice ?? i.price ?? 0) * i.qty, 0)
   const productDiscount = Math.max(originalSubtotal - totalPrice, 0)
@@ -347,17 +292,26 @@ export default function CartPage() {
     : 0
   const estimated = Math.max(totalPrice + shipping - discount, 0)
 
-  function applyCoupon() {
+  async function applyCoupon() {
     const code = form.couponCode.trim().toUpperCase()
-    const found = COUPONS[code]
-    if (!found) {
+    if (!code) return
+    setCouponChecking(true)
+    try {
+      const result = await couponsService.validateCoupon(code)
+      if (!result.valid) {
+        setCoupon(null)
+        setCouponError(result.reason || 'Mã ưu đãi không hợp lệ.')
+        return
+      }
+      setCoupon({ code: result.coupon.code, type: result.coupon.type, value: result.coupon.value })
+      setCouponError('')
+      setFormField('couponCode', result.coupon.code)
+    } catch {
       setCoupon(null)
-      setCouponError('Mã ưu đãi không hợp lệ.')
-      return
+      setCouponError('Không thể kiểm tra mã ưu đãi lúc này, vui lòng thử lại.')
+    } finally {
+      setCouponChecking(false)
     }
-    setCoupon({ code, ...found })
-    setCouponError('')
-    setFormField('couponCode', code)
   }
 
   function removeCoupon() {
@@ -463,7 +417,7 @@ export default function CartPage() {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length > 0) {
@@ -480,16 +434,20 @@ export default function CartPage() {
       return
     }
 
+    setSubmitError('')
     setSubmitting(true)
     const orderData = buildOrderData()
-
-    setTimeout(() => {
+    try {
+      await ordersService.createOrder(orderData)
       clearCart()
       navigate('/dat-hang-thanh-cong', { state: { order: orderData } })
-    }, 1200)
+    } catch {
+      setSubmitError('Không thể gửi đơn hàng lúc này, vui lòng thử lại.')
+      setSubmitting(false)
+    }
   }
 
-  function finalizeTransferPayment() {
+  async function finalizeTransferPayment() {
     const errs = validate()
     if (Object.keys(errs).length > 0 || !agreed) {
       // Payment was received, but the order details aren't complete yet —
@@ -504,9 +462,15 @@ export default function CartPage() {
     }
 
     const orderData = buildOrderData()
-    clearCart()
-    setShowTransferModal(false)
-    navigate('/dat-hang-thanh-cong', { state: { order: orderData } })
+    try {
+      await ordersService.createOrder(orderData)
+      clearCart()
+      setShowTransferModal(false)
+      navigate('/dat-hang-thanh-cong', { state: { order: orderData } })
+    } catch {
+      setShowTransferModal(false)
+      setSubmitError('Đã ghi nhận thanh toán nhưng không thể lưu đơn hàng, vui lòng liên hệ Merifarm để được hỗ trợ.')
+    }
   }
 
   // Poll the backend for payment confirmation while the transfer modal is open.
@@ -703,7 +667,7 @@ export default function CartPage() {
                   <div>
                     <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary">B. Phương thức nhận hàng</h3>
                     <OptionPicker
-                      options={DELIVERY_OPTIONS}
+                      options={deliveryOptions}
                       value={form.deliveryMethod}
                       onChange={(v) => setForm((f) => ({ ...f, deliveryMethod: v }))}
                       placeholder="— Chọn phương thức nhận hàng —"
@@ -715,11 +679,15 @@ export default function CartPage() {
                         <MapPin size={16} className="mt-0.5 shrink-0 text-accent-dark" />
                         <div>
                           <p className="font-semibold">Địa chỉ kho / cửa hàng Merifarm</p>
-                          <p className="mt-0.5 text-secondary">Số 5-7, Đường số 32, Phường Bình Phú, TP. Hồ Chí Minh</p>
+                          <p className="mt-0.5 text-secondary">{[warehouse.address, warehouse.province].filter(Boolean).join(', ')}</p>
                           <p className="text-secondary">
-                            Hotline: <a href="tel:0981798065" className="font-medium text-primary">0981 798 065</a>
-                            {' - '}
-                            <a href="tel:0782861873" className="font-medium text-primary">0782 861 873</a>
+                            Hotline: <a href={`tel:${warehouse.phone1}`} className="font-medium text-primary">{warehouse.phone1}</a>
+                            {warehouse.phone2 && (
+                              <>
+                                {' - '}
+                                <a href={`tel:${warehouse.phone2}`} className="font-medium text-primary">{warehouse.phone2}</a>
+                              </>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -889,14 +857,14 @@ export default function CartPage() {
                         />
                         <button
                           type="button"
-                          disabled={!form.couponCode.trim()}
+                          disabled={!form.couponCode.trim() || couponChecking}
                           onClick={applyCoupon}
                           className={`shrink-0 rounded-xl border px-4 text-sm font-semibold transition-colors
-                            ${form.couponCode.trim()
+                            ${form.couponCode.trim() && !couponChecking
                               ? 'border-primary text-primary hover:bg-primary hover:text-white cursor-pointer'
                               : 'border-soft text-faint cursor-not-allowed'}`}
                         >
-                          Áp dụng
+                          {couponChecking ? 'Đang kiểm tra...' : 'Áp dụng'}
                         </button>
                       </div>
                       {couponError && (
@@ -1011,6 +979,12 @@ export default function CartPage() {
                       <span className="ml-0.5 text-red-500">*</span>
                     </p>
                   </label>
+
+                  {submitError && (
+                    <p className="flex items-center gap-1.5 rounded-xl bg-red-50 px-3.5 py-2.5 text-xs text-red-600">
+                      <AlertCircle size={13} className="shrink-0" />{submitError}
+                    </p>
+                  )}
 
                   <button
                     type="submit"
@@ -1192,19 +1166,19 @@ export default function CartPage() {
                   <div className="space-y-3 text-sm">
                     <div>
                       <p className="text-xs text-faint">Công ty</p>
-                      <p className="font-semibold text-ink">{BANK_INFO.company}</p>
+                      <p className="font-semibold text-ink">{bankInfo.company}</p>
                     </div>
                     <div>
                       <p className="text-xs text-faint">Ngân hàng</p>
-                      <p className="font-semibold text-ink">{BANK_INFO.bank}</p>
+                      <p className="font-semibold text-ink">{bankInfo.bank}</p>
                     </div>
                     <div>
                       <p className="text-xs text-faint">Số tài khoản</p>
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-primary-dark">{BANK_INFO.accountNumber}</p>
+                        <p className="font-bold text-primary-dark">{bankInfo.accountNumber}</p>
                         <button
                           type="button"
-                          onClick={() => navigator.clipboard?.writeText(BANK_INFO.accountNumber)}
+                          onClick={() => navigator.clipboard?.writeText(bankInfo.accountNumber)}
                           title="Sao chép số tài khoản"
                           className="text-faint transition-colors hover:text-primary"
                         >
@@ -1214,7 +1188,7 @@ export default function CartPage() {
                     </div>
                     <div>
                       <p className="text-xs text-faint">Chủ tài khoản</p>
-                      <p className="font-semibold text-ink">{BANK_INFO.accountHolder}</p>
+                      <p className="font-semibold text-ink">{bankInfo.accountHolder}</p>
                     </div>
                     <div className="border-t border-soft pt-3">
                       <p className="text-xs text-faint">Số tiền cần chuyển</p>
@@ -1226,7 +1200,7 @@ export default function CartPage() {
                   <div className="flex flex-col items-center justify-center gap-3">
                     <div className="relative h-[190px] w-[190px] overflow-hidden rounded-xl border border-soft">
                       <img
-                        src={BANK_INFO.qrImage}
+                        src={bankInfo.qrImage}
                         alt="Mã QR thanh toán MB Bank"
                         className="h-full w-full object-contain p-2"
                       />

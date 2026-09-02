@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link, useParams, Navigate, useNavigate } from 'react-router-dom'
 import {
   Minus, Plus, ShoppingCart, Wallet, ChevronRight, ChevronLeft, ChevronDown,
@@ -13,8 +13,8 @@ import PriceTag from '../components/product/PriceTag'
 import Reveal from '../components/ui/Reveal'
 import SectionHeading from '../components/ui/SectionHeading'
 import categories from '../data/categories.json'
-import allProducts from '../data/products.json'
-import productDetails, { CROP_LABELS, FORM_LABELS, CATEGORY_LABELS } from '../data/productDetails'
+import { CROP_LABELS, FORM_LABELS, CATEGORY_LABELS } from '../data/productDetails'
+import { getProduct, listProducts } from '../services/productsService'
 import { useCartStore } from '../store/cartStore'
 
 const ICON_MAP = { Leaf, Sun, Sprout, Shield, Zap, Droplets, AlertCircle }
@@ -217,16 +217,32 @@ export default function ProductDetailPage() {
   const [activeImg, setActiveImg] = useState(0)
   const [activeTab, setActiveTab] = useState('tong-quan')
   const [openAccordions, setOpenAccordions] = useState(() => new Set(['tong-quan']))
+  const [product, setProduct] = useState(null)
+  const [notFound, setNotFound] = useState(false)
+  const [related, setRelated] = useState([])
 
-  const product = allProducts.find((p) => p.slug === slug)
-  if (!product) return <Navigate to="/san-pham" replace />
+  useEffect(() => {
+    let cancelled = false
+    setProduct(null)
+    setNotFound(false)
+    getProduct(slug).then((p) => {
+      if (cancelled) return
+      if (!p) { setNotFound(true); return }
+      setProduct(p)
+      listProducts().then((all) => {
+        if (cancelled) return
+        setRelated(all.filter((x) => x.category === p.category && x.id !== p.id).slice(0, 4))
+      })
+    })
+    return () => { cancelled = true }
+  }, [slug])
 
-  const detail = productDetails[slug] || {}
+  if (notFound) return <Navigate to="/san-pham" replace />
+  if (!product) return null
+
+  const detail = product
   const images = product.images?.length ? product.images : [product.image]
   const category = categories.find((c) => c.id === product.category)
-  const related = allProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4)
 
   const prev = () => setActiveImg((i) => (i - 1 + images.length) % images.length)
   const next = () => setActiveImg((i) => (i + 1) % images.length)
@@ -571,7 +587,7 @@ export default function ProductDetailPage() {
                 ['Quy cách', detail.specification?.quyCach || product.packageUnit || 'Đang cập nhật'],
                 ['Dạng sản phẩm', detail.specification?.dangSanPham || FORM_LABELS[product.form] || 'Đang cập nhật'],
                 ['Xuất xứ', detail.specification?.xuatXu || 'Đang cập nhật'],
-                ['Đơn vị phân phối', 'CÔNG TY TNHH CÔNG NGHỆ DVP-DEDITECH'],
+                ['Đơn vị phân phối', detail.specification?.toChuc || 'CÔNG TY TNHH CÔNG NGHỆ DVP-DEDITECH'],
               ].map(([label, value], i) => (
                 <div
                   key={label}

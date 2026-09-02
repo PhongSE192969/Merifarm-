@@ -7,7 +7,7 @@ import categories from '../data/categories.json'
 import cropTypes from '../data/cropTypes.json'
 import usageNeeds from '../data/usageNeeds.json'
 import productForms from '../data/productForms.json'
-import allProducts from '../data/products.json'
+import { listProducts } from '../services/productsService'
 
 const PAGE_SIZE = 9
 
@@ -62,6 +62,15 @@ export default function ProductsPage() {
   const [sort, setSort] = useState('default')
   const [page, setPage] = useState(1)
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [allProducts, setAllProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    listProducts()
+      .then(setAllProducts)
+      .catch(() => setAllProducts([]))
+      .finally(() => setLoading(false))
+  }, [])
 
   useEffect(() => { setPage(1) }, [activeCategory, activeCrop, activeNeed, activeForm, search, sort])
 
@@ -98,7 +107,7 @@ export default function ProductsPage() {
       })
     }
     return list
-  }, [activeCategory, activeCrop, activeNeed, activeForm, search, sort])
+  }, [allProducts, activeCategory, activeCrop, activeNeed, activeForm, search, sort])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -199,7 +208,9 @@ export default function ProductsPage() {
           {/* Mobile count */}
           <p className="mb-3 text-sm text-secondary md:hidden">{filtered.length} sản phẩm</p>
 
-          {paginated.length === 0 ? (
+          {loading ? (
+            <div className="rounded-card bg-white p-10 text-center text-secondary shadow-sm">Đang tải sản phẩm...</div>
+          ) : paginated.length === 0 ? (
             <div className="rounded-card bg-white p-10 text-center text-secondary shadow-sm">
               <p className="font-semibold text-ink">Không tìm thấy sản phẩm phù hợp.</p>
               <p className="mt-1 text-sm">Hãy thử xóa bớt bộ lọc hoặc tìm kiếm với từ khóa khác.</p>

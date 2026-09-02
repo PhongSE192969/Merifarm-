@@ -138,4 +138,63 @@
   .animate-qr-scan {
     animation: qr-scan 2.2s ease-in-out infinite;
   }
+
+  /* ── Khu quản lý: nền "nước" trôi nhẹ phía sau các khối kính ── */
+  @keyframes admin-blob-drift-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(4%, 6%) scale(1.08); }
+  }
+
+  @keyframes admin-blob-drift-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-5%, -4%) scale(1.1); }
+  }
+
+  @keyframes admin-blob-drift-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(3%, -5%) scale(1.05); }
+  }
+
+  .animate-admin-blob-1 {
+    animation: admin-blob-drift-1 22s ease-in-out infinite;
+  }
+
+  .animate-admin-blob-2 {
+    animation: admin-blob-drift-2 26s ease-in-out infinite;
+  }
+
+  .animate-admin-blob-3 {
+    animation: admin-blob-drift-3 19s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-admin-blob-1,
+    .animate-admin-blob-2,
+    .animate-admin-blob-3 {
+      animation: none;
+    }
+  }
+
+  /* Khối kính dùng chung cho toàn bộ khu quản lý */
+  .admin-glass {
+    @apply border border-white/70 bg-white/65 shadow-[0_8px_32px_-12px_rgba(15,107,52,0.18)] backdrop-blur-xl;
+  }
+
+  /* Chừa chỗ cho thanh điều hướng đang position:fixed — viết bằng CSS thường (không
+     phải class Tailwind dựng động) để chắc chắn áp dụng đúng, tránh lặp lại lỗi
+     class động md:pl-[...] không lên hiệu lực. */
+  .admin-content-shift {
+    padding-left: 0;
+  }
+  .admin-content-shift-collapsed {
+    padding-left: 0;
+  }
+  @media (min-width: 768px) {
+    .admin-content-shift {
+      padding-left: 232px;
+    }
+    .admin-content-shift-collapsed {
+      padding-left: 88px;
+    }
+  }
 }
