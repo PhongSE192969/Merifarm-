@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import ScrollToTop from './components/ScrollToTop'
@@ -16,14 +17,23 @@ import ChinhSachGiaoHangPage from './pages/policy/ChinhSachGiaoHangPage'
 import ChinhSachDoiTraPage from './pages/policy/ChinhSachDoiTraPage'
 import ChinhSachBaoMatPage from './pages/policy/ChinhSachBaoMatPage'
 // import OrderSuccessPage from './pages/OrderSuccessPage'
-import AdminRoutes from '../quan-ly/fe/routes/AdminRoutes'
+// Tách khỏi bundle chính (storefront công khai) — chỉ tải khi thực sự vào /quan-ly,
+// vì khu quản lý dùng thêm thư viện biểu đồ (recharts) khá nặng.
+const AdminRoutes = lazy(() => import('../quan-ly/fe/routes/AdminRoutes'))
 
 function App() {
   return (
     <>
       <ScrollToTop />
       <Routes>
-      <Route path="/quan-ly/*" element={<AdminRoutes />} />
+      <Route
+        path="/quan-ly/*"
+        element={
+          <Suspense fallback={null}>
+            <AdminRoutes />
+          </Suspense>
+        }
+      />
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/gioi-thieu" element={<AboutPage />} />
