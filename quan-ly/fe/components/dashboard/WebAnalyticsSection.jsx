@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Eye, Users, FileText } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../common/StatCard'
-import BreakdownPanel, { countryLabel } from './BreakdownPanel'
+import BreakdownPanel, { countryFlag, countryLabel } from './BreakdownPanel'
 import { getAnalyticsTimeseries } from '../../../../src/services/analyticsService'
 
 const GRANULARITY_OPTIONS = [
@@ -17,11 +17,6 @@ const METRIC_OPTIONS = [
 ]
 
 const DEVICE_LABELS = { desktop: 'Máy tính', mobile: 'Điện thoại', tablet: 'Máy tính bảng' }
-
-function flagOf(code) {
-  if (!code || code.length !== 2) return ''
-  return String.fromCodePoint(...[...code.toUpperCase()].map((c) => 127397 + c.charCodeAt(0)))
-}
 
 function formatDateLabel(iso, granularity) {
   const d = new Date(iso)
@@ -61,14 +56,14 @@ export default function WebAnalyticsSection() {
           icon={Eye}
           label="Lượt xem trang"
           value={loading || error ? na : data.totals.pageviews.toLocaleString('vi-VN')}
-          hint={error || 'Vercel Web Analytics'}
+          hint={error || undefined}
         />
         <StatCard
           tone="accent"
           icon={Users}
           label="Khách truy cập"
           value={loading || error ? na : data.totals.visitors.toLocaleString('vi-VN')}
-          hint={error || 'Vercel Web Analytics'}
+          hint={error || undefined}
         />
         <StatCard
           tone="rose"
@@ -142,7 +137,7 @@ export default function WebAnalyticsSection() {
             rows={data.countries}
             renderLabel={(code) => (
               <>
-                <span>{flagOf(code)}</span> {countryLabel(code)}
+                <span>{countryFlag(code)}</span> {countryLabel(code)}
               </>
             )}
           />

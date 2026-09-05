@@ -4,8 +4,8 @@ const regionNames = typeof Intl !== 'undefined' && Intl.DisplayNames
   ? new Intl.DisplayNames(['vi'], { type: 'region' })
   : null
 
-function countryFlag(code) {
-  if (!code || code.length !== 2) return '🏳️'
+export function countryFlag(code) {
+  if (!code || code.length !== 2) return ''
   return String.fromCodePoint(...[...code.toUpperCase()].map((c) => 127397 + c.charCodeAt(0)))
 }
 
@@ -39,25 +39,25 @@ export default function BreakdownPanel({ title, tabs, rows, renderLabel }) {
 
   return (
     <div className="admin-glass rounded-2xl p-5">
-      <div className="mb-3 flex items-center justify-between border-b border-white/70 pb-3">
-        <div className="flex items-center gap-4">
-          {tabs ? (
-            tabs.map((tab) => (
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-white/70 pb-3">
+        {tabs ? (
+          <div className="flex items-center gap-1 rounded-full border border-soft bg-white p-1">
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`text-sm font-semibold transition-colors ${
-                  activeTab === tab.id ? 'text-ink' : 'text-faint hover:text-secondary'
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                  activeTab === tab.id ? 'bg-primary text-white' : 'text-secondary hover:bg-soft-green'
                 }`}
               >
                 {tab.label}
               </button>
-            ))
-          ) : (
-            <h3 className="text-sm font-semibold text-ink">{title}</h3>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <h3 className="text-sm font-semibold text-ink">{title}</h3>
+        )}
         <span className="text-[11px] font-semibold uppercase tracking-wide text-faint">Khách truy cập</span>
       </div>
 
