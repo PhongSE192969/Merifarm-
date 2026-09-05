@@ -16,8 +16,12 @@ export default async function handler(req, res) {
     return
   }
 
+  // Vercel làm tròn since/until theo ngày (UTC) — nếu "until" là thời điểm hiện tại
+  // (VD 05:40), nó có thể bị làm tròn XUỐNG về 00:00 hôm nay, cắt mất toàn bộ lượt
+  // xem của "hôm nay". Đẩy "until" lên đầu ngày MAI để chắc chắn đủ dữ liệu.
   const days = Math.min(Math.max(Number(req.query.days) || 7, 1), 90)
-  const until = new Date()
+  const now = new Date()
+  const until = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
   const since = new Date(until.getTime() - days * 24 * 60 * 60 * 1000)
 
   const params = new URLSearchParams({
