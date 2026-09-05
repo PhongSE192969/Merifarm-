@@ -1,7 +1,6 @@
 import { NavLink, Link, useLocation } from 'react-router-dom'
-import { ShoppingCart, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useCartStore } from '../../store/cartStore'
 
 const NAV_LINKS = [
   { to: '/', label: 'Trang chủ' },
@@ -13,7 +12,6 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
-  const totalItems = useCartStore((s) => s.totalItems())
   const location = useLocation()
   const isHome = ['/', '/gioi-thieu'].includes(location.pathname)
 
@@ -66,24 +64,6 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {/* Cart icon */}
-            <Link
-              to="/gio-hang"
-              className={`relative flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${
-                isHome
-                  ? 'border-white/60 bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-primary-dark'
-                  : 'border-soft bg-white text-primary-dark hover:bg-primary/10'
-              }`}
-              aria-label={`Giỏ hàng${totalItems > 0 ? ` (${totalItems} sản phẩm)` : ''}`}
-            >
-              <ShoppingCart size={20} />
-              {totalItems > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full border border-accent-dark bg-white text-xs font-bold text-accent-dark leading-none">
-                  {totalItems > 9 ? '9+' : totalItems}
-                </span>
-              )}
-            </Link>
-
             {/* Hamburger */}
             <button
               type="button"

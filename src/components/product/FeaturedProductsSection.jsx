@@ -1,25 +1,17 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Leaf, ShoppingCart } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, Leaf } from 'lucide-react'
 import { listProducts } from '../../services/productsService'
-import { useCartStore } from '../../store/cartStore'
 import PriceTag from './PriceTag'
 
 export default function FeaturedProductsSection() {
   const [products, setProducts] = useState([])
   const featured = products.filter((product) => product.tags?.includes('ban-chay'))
   const [activeIndex, setActiveIndex] = useState(1)
-  const addItem = useCartStore((state) => state.addItem)
-  const navigate = useNavigate()
 
   useEffect(() => {
     listProducts().then(setProducts).catch(() => setProducts([]))
   }, [])
-
-  const handleAdd = (product) => {
-    addItem(product, 1)
-    navigate('/gio-hang')
-  }
 
   useEffect(() => {
     if (featured.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -110,28 +102,13 @@ export default function FeaturedProductsSection() {
                 <span>{primaryProduct.shortDescription}</span>
               </p>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-                <PriceTag
-                  price={primaryProduct.price}
-                  originalPrice={primaryProduct.originalPrice}
-                  className="text-3xl font-extrabold"
-                />
-                <div className="flex items-center gap-3">
-                  <Link
-                    to={`/san-pham/${primaryProduct.slug}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark"
-                  >
-                    Xem chi tiết <ArrowRight size={17} />
-                  </Link>
-                  <button
-                    type="button"
-                    disabled={!primaryProduct.inStock}
-                    onClick={() => handleAdd(primaryProduct)}
-                    aria-label={`Thêm ${primaryProduct.name} vào giỏ`}
-                    className="flex h-12 w-12 items-center justify-center rounded-full border border-primary bg-white text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-white disabled:text-gray-300"
-                  >
-                    <ShoppingCart size={21} />
-                  </button>
-                </div>
+                <PriceTag size="lg" />
+                <Link
+                  to={`/san-pham/${primaryProduct.slug}`}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark"
+                >
+                  Xem chi tiết <ArrowRight size={17} />
+                </Link>
               </div>
             </div>
           </article>
@@ -166,21 +143,8 @@ export default function FeaturedProductsSection() {
                       {product.name}
                     </h3>
                   </Link>
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <PriceTag
-                      price={product.price}
-                      originalPrice={product.originalPrice}
-                      className="text-xl font-extrabold"
-                    />
-                    <button
-                      type="button"
-                      disabled={!product.inStock}
-                      onClick={() => handleAdd(product)}
-                      aria-label={`Thêm ${product.name} vào giỏ`}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/70 bg-white text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-white disabled:text-gray-300"
-                    >
-                      <ShoppingCart size={18} />
-                    </button>
+                  <div className="mt-2">
+                    <PriceTag size="sm" />
                   </div>
                 </div>
               </article>

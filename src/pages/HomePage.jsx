@@ -126,7 +126,7 @@ export default function HomePage() {
               MERIFARM
             </p>
             <h1 className="mx-auto mt-4 text-2xl font-extrabold leading-tight text-white drop-shadow-md md:whitespace-nowrap md:text-4xl">
-              Phân bón chất lượng - vụ mùa bội thu
+              Dinh dưỡng cho cây - Vụ mùa bội thu
             </h1>
             <p className="mx-auto mt-5 text-base leading-relaxed text-white/85 md:whitespace-nowrap md:text-lg">
               Giải pháp dinh dưỡng phù hợp cho từng loại cây trồng, đồng hành cùng nhà nông trong mỗi mùa vụ

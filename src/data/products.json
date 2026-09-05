@@ -34,7 +34,7 @@
     "cropTypes": ["lua", "rau-mau", "cay-an-trai", "hoa-kieng", "cay-cong-nghiep"],
     "packageUnit": "Hũ 1kg",
     "form": "hat",
-    "price": 127000,
+    "price": 130000,
     "image": "/products/cards/ph-balance-humate-79-card.png",
     "images": [
       "/products/ph-balance-humate-79/gallery/img-1.png",
@@ -63,7 +63,7 @@
     "cropTypes": ["lua"],
     "packageUnit": "Chai 250ml",
     "form": "nuoc",
-    "price": 90000,
+    "price": 65000,
     "image": "/products/cards/ra-re-no-bui-card.png",
     "images": [
       "/products/ra-re-no-bui/gallery/img-1.png",
@@ -97,7 +97,7 @@
     "cropTypes": ["lua"],
     "packageUnit": "Chai 250ml",
     "form": "nuoc",
-    "price": 83000,
+    "price": 55000,
     "image": "/products/cards/vo-gao-nhanh-card.png",
     "images": [
       "/products/vo-gao-nhanh/gallery/img-1.png",
@@ -152,8 +152,8 @@
     "cropTypes": ["lua", "rau-mau", "cay-an-trai", "hoa-kieng", "cay-cong-nghiep"],
     "packageUnit": "Chai 100ml",
     "form": "nuoc",
-    "price": 84550,
-    "originalPrice": 89000,
+    "price": 39000,
+    "originalPrice": 43000,
     "image": "/products/cards/loang-trai-tham-sau-card.png",
     "images": [
       "/products/loang-trai-tham-sau/gallery/img-1.png",
@@ -181,8 +181,8 @@
     "cropTypes": ["cay-an-trai", "cay-cong-nghiep", "rau-mau"],
     "packageUnit": "Chai 1 Lít",
     "form": "nuoc",
-    "price": 117000,
-    "originalPrice": 130000,
+    "price": 320000,
+    "originalPrice": 352000,
     "image": "/products/robust/img-1.png",
     "images": [
       "/products/robust/gallery/img-1.png",
@@ -210,8 +210,8 @@
     "cropTypes": ["cay-an-trai", "cay-cong-nghiep", "rau-mau"],
     "packageUnit": "Chai 1 Lít",
     "form": "nuoc",
-    "price": 117000,
-    "originalPrice": 130000,
+    "price": 285000,
+    "originalPrice": 313500,
     "image": "/products/lasting-khang-nam-tuyen-trung/img-1.png",
     "images": [
       "/products/lasting-khang-nam-tuyen-trung/gallery/img-1.png",
@@ -239,8 +239,8 @@
     "cropTypes": ["lua", "rau-mau", "cay-an-trai", "cay-cong-nghiep"],
     "packageUnit": "Chai 1 Lít",
     "form": "nuoc",
-    "price": 117000,
-    "originalPrice": 130000,
+    "price": 310000,
+    "originalPrice": 341000,
     "image": "/products/bumper-duong/img-1.png",
     "images": [
       "/products/bumper-duong/gallery/img-1.png",

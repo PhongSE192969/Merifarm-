@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react'
-import { Link, useParams, Navigate, useNavigate } from 'react-router-dom'
+import { Link, useParams, Navigate } from 'react-router-dom'
 import {
-  Minus, Plus, ShoppingCart, Wallet, ChevronRight, ChevronLeft, ChevronDown,
+  ChevronRight, ChevronLeft, ChevronDown,
   Leaf, Sun, Sprout, Shield, Zap, Droplets, AlertCircle,
   FlaskConical, MapPin, Package, TestTube2, Thermometer, Phone, MessageSquare,
   CheckCircle2, Info,
@@ -15,7 +15,6 @@ import SectionHeading from '../components/ui/SectionHeading'
 import categories from '../data/categories.json'
 import { CROP_LABELS, FORM_LABELS, CATEGORY_LABELS } from '../data/productDetails'
 import { getProduct, listProducts } from '../services/productsService'
-import { useCartStore } from '../store/cartStore'
 
 const ICON_MAP = { Leaf, Sun, Sprout, Shield, Zap, Droplets, AlertCircle }
 
@@ -210,10 +209,6 @@ function TabContent({ tabId, product, detail }) {
 
 export default function ProductDetailPage() {
   const { slug } = useParams()
-  const navigate = useNavigate()
-  const addItem = useCartStore((s) => s.addItem)
-  const [qty, setQty] = useState(1)
-  const [added, setAdded] = useState(false)
   const [activeImg, setActiveImg] = useState(0)
   const [activeTab, setActiveTab] = useState('tong-quan')
   const [openAccordions, setOpenAccordions] = useState(() => new Set(['tong-quan']))
@@ -246,17 +241,6 @@ export default function ProductDetailPage() {
 
   const prev = () => setActiveImg((i) => (i - 1 + images.length) % images.length)
   const next = () => setActiveImg((i) => (i + 1) % images.length)
-
-  const handleAddToCart = () => {
-    addItem(product, qty)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
-  }
-
-  const handleBuyNow = () => {
-    addItem(product, qty)
-    navigate('/gio-hang')
-  }
 
   const toggleAccordion = (id) => {
     setOpenAccordions((prev) => {
@@ -375,13 +359,8 @@ export default function ProductDetailPage() {
 
             {/* Price */}
             <div className="flex flex-wrap items-baseline gap-3">
-              <PriceTag
-                price={product.price}
-                originalPrice={product.originalPrice}
-                className="text-3xl font-extrabold"
-                color="text-primary-dark"
-              />
-              <span className="text-sm text-faint">/ {product.packageUnit}</span>
+              <PriceTag size="lg" />
+              <span className="text-sm text-faint">Liên hệ để được báo giá cho {product.packageUnit}</span>
             </div>
 
             {/* Short description */}
@@ -408,57 +387,15 @@ export default function ProductDetailPage() {
             {/* Separator */}
             <div className="border-t border-soft" />
 
-            {/* Qty + Cart */}
+            {/* Contact CTA */}
             {product.inStock ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center rounded-full border border-soft bg-white">
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-primary-dark hover:bg-soft-green transition-colors"
-                      aria-label="Giảm số lượng"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <span className="w-10 text-center font-bold text-ink">{qty}</span>
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => q + 1)}
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-primary-dark hover:bg-soft-green transition-colors"
-                      aria-label="Tăng số lượng"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                  <div className="flex flex-1 gap-2">
-                    <Button
-                      onClick={handleAddToCart}
-                      variant={added ? 'solidPrimary' : 'solidAccent'}
-                      className="flex-1 transition-all duration-300"
-                    >
-                      <ShoppingCart size={18} />
-                      {added ? 'Đã thêm!' : 'Thêm vào giỏ'}
-                    </Button>
-                    <Button
-                      onClick={handleBuyNow}
-                      variant="solidPrimary"
-                      className="flex-1"
-                    >
-                      <Wallet size={18} />
-                      Mua ngay
-                    </Button>
-                  </div>
-                </div>
-
-                <Link
-                  to={consultUrl}
-                  className="flex w-full items-center justify-center gap-2 rounded-full border border-primary/40 bg-white py-2.5 text-sm font-semibold text-primary transition-all duration-200 hover:border-primary hover:bg-soft-green"
-                >
-                  <MessageSquare size={15} />
-                  Tư vấn sản phẩm này
-                </Link>
-              </div>
+              <Link
+                to={consultUrl}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-md"
+              >
+                <Phone size={17} />
+                Liên hệ đặt hàng
+              </Link>
             ) : (
               <p className="inline-block rounded-full bg-gray-100 px-5 py-2 text-sm font-semibold text-gray-500">
                 Sản phẩm tạm hết hàng
@@ -649,45 +586,16 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {/* ── Mobile Sticky Cart Bar ── */}
+      {/* ── Mobile Sticky Contact Bar ── */}
       {product.inStock && (
         <div className="fixed inset-x-0 bottom-0 z-50 border-t border-soft bg-white px-4 py-3 shadow-lg md:hidden">
-          <div className="flex items-center gap-3">
-            <div className="shrink-0">
-              <p className="text-[10px] uppercase tracking-wide text-faint">Đơn giá</p>
-              <PriceTag
-                price={product.price}
-                originalPrice={product.originalPrice}
-                className="text-lg font-extrabold"
-                color="text-primary-dark"
-              />
-            </div>
-            <div className="flex shrink-0 items-center rounded-full border border-soft">
-              <button
-                type="button"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="flex h-8 w-8 items-center justify-center text-primary-dark"
-              >
-                <Minus size={14} />
-              </button>
-              <span className="w-8 text-center text-sm font-bold">{qty}</span>
-              <button
-                type="button"
-                onClick={() => setQty((q) => q + 1)}
-                className="flex h-8 w-8 items-center justify-center text-primary-dark"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-            <Button onClick={handleAddToCart} variant={added ? 'solidPrimary' : 'solidAccent'} className="flex-1 py-2.5 text-sm">
-              <ShoppingCart size={16} />
-              {added ? 'Đã thêm!' : 'Thêm vào giỏ'}
-            </Button>
-            <Button onClick={handleBuyNow} variant="solidPrimary" className="flex-1 py-2.5 text-sm">
-              <Wallet size={16} />
-              Mua ngay
-            </Button>
-          </div>
+          <Link
+            to={consultUrl}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary-dark"
+          >
+            <Phone size={16} />
+            Liên hệ đặt hàng
+          </Link>
         </div>
       )}
     </div>

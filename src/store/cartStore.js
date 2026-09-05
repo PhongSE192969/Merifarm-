@@ -37,8 +37,6 @@ export const useCartStore = create(
 
       totalPrice: () =>
         get().items.reduce((sum, i) => sum + (i.price || 0) * i.qty, 0),
-
-      hasQuotePendingItems: () => get().items.some((i) => i.price === null || i.price === undefined),
     }),
     { name: 'phanbon-cart-storage' }
   )

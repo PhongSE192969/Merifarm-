@@ -39,26 +39,6 @@ const CONTACT_CARDS = [
   },
 ]
 
-const CROP_TYPES = [
-  'Cây ăn quả', 'Rau màu', 'Lúa', 'Cây công nghiệp',
-  'Hoa kiểng', 'Cây gia vị', 'Khác',
-]
-
-const FARM_SCALES = [
-  '< 1.000 m²', '1.000 - 5.000 m²', '0,5 - 1 ha', '1 - 3 ha',
-  '> 3 ha', '< 50 gốc', '50 - 200 gốc', '> 200 gốc', 'Khác',
-]
-
-const PLANT_CONDITIONS = [
-  'Cây chậm lớn', 'Vàng lá', 'Yếu rễ', 'Ra hoa kém', 'Đậu trái kém',
-  'Trái nhỏ', 'Phục hồi sau thu hoạch', 'Cải tạo đất', 'Khác',
-]
-
-const CONSULTING_NEEDS = [
-  'Chọn phân phù hợp', 'Kích rễ', 'Dưỡng lá', 'Ra hoa', 'Đậu trái',
-  'Nuôi trái', 'Phục hồi cây', 'Cải tạo đất', 'Lịch bón / liều lượng', 'Khác',
-]
-
 const PARTNERSHIP_CARDS = [
   {
     img: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=600&q=80&auto=format&fit=crop',
@@ -88,10 +68,6 @@ const PARTNERSHIP_CARDS = [
 
 const INITIAL_FORM = {
   fullName: '', phone: '', email: '',
-  cropTypes: [], cropTypeOther: '',
-  farmScale: '', farmScaleOther: '',
-  currentIssues: [], currentIssueOther: '',
-  consultingNeeds: [], consultingNeedOther: '',
   detailMessage: '',
 }
 
@@ -120,31 +96,6 @@ function TextInput({ name, value, onChange, placeholder, type = 'text', required
   )
 }
 
-function ChipGroup({ options, selected, onToggle, multi = true }) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((opt) => {
-        const isOn = multi ? selected.includes(opt) : selected === opt
-        return (
-          <button
-            key={opt}
-            type="button"
-            onClick={() => onToggle(opt)}
-            className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all duration-150
-              focus:outline-none focus:ring-2 focus:ring-primary/25
-              ${isOn
-                ? 'border-primary bg-white text-primary shadow-sm ring-1 ring-primary'
-                : 'border-soft bg-white text-ink hover:border-primary/50 hover:bg-soft-green hover:text-primary-dark'
-              }`}
-          >
-            {opt}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function ContactPage() {
@@ -153,15 +104,6 @@ export default function ContactPage() {
 
   const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
-
-  const toggleMulti = (field, val) =>
-    setForm((f) => {
-      const arr = f[field]
-      return { ...f, [field]: arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val] }
-    })
-
-  const setSingle = (field, val) =>
-    setForm((f) => ({ ...f, [field]: f[field] === val ? '' : val }))
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -302,157 +244,53 @@ export default function ContactPage() {
                     </Button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="divide-y divide-soft">
-                    {/* ── Section A: Thông tin cơ bản ── */}
-                    <div className="space-y-4 p-6">
-                      <p className="text-xs font-bold uppercase tracking-wider text-secondary">
-                        A. Thông tin liên hệ
-                      </p>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div>
-                          <FieldLabel required>Họ và tên</FieldLabel>
-                          <TextInput
-                            name="fullName" value={form.fullName} onChange={handleChange}
-                            placeholder="Nhập họ và tên của bạn" required
-                          />
-                        </div>
-                        <div>
-                          <FieldLabel required>Số điện thoại</FieldLabel>
-                          <TextInput
-                            name="phone" type="tel" value={form.phone} onChange={handleChange}
-                            placeholder="Nhập số điện thoại" required
-                          />
-                        </div>
-                      </div>
+                  <form onSubmit={handleSubmit} className="space-y-4 p-6">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <FieldLabel>Email (nếu có)</FieldLabel>
+                        <FieldLabel required>Họ và tên</FieldLabel>
                         <TextInput
-                          name="email" type="email" value={form.email} onChange={handleChange}
-                          placeholder="Nhập email của bạn"
+                          name="fullName" value={form.fullName} onChange={handleChange}
+                          placeholder="Nhập họ và tên của bạn" required
+                        />
+                      </div>
+                      <div>
+                        <FieldLabel required>Số điện thoại</FieldLabel>
+                        <TextInput
+                          name="phone" type="tel" value={form.phone} onChange={handleChange}
+                          placeholder="Nhập số điện thoại" required
                         />
                       </div>
                     </div>
-
-                    {/* ── Section B: Thông tin canh tác ── */}
-                    <div className="space-y-5 p-6">
-                      <p className="text-xs font-bold uppercase tracking-wider text-secondary">
-                        B. Thông tin canh tác
-                      </p>
-
-                      {/* Loại cây trồng */}
-                      <div>
-                        <FieldLabel required>Loại cây trồng</FieldLabel>
-                        <ChipGroup
-                          options={CROP_TYPES}
-                          selected={form.cropTypes}
-                          onToggle={(v) => toggleMulti('cropTypes', v)}
-                        />
-                        <p className="mt-2 text-xs text-faint">
-                          Ví dụ: cam, sầu riêng, xoài, rau ăn lá, ớt, cà chua, cà phê, hồ tiêu...
-                        </p>
-                        {form.cropTypes.includes('Khác') && (
-                          <div className="mt-2">
-                            <TextInput
-                              name="cropTypeOther" value={form.cropTypeOther} onChange={handleChange}
-                              placeholder="Nhập loại cây trồng khác"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Diện tích / số lượng cây */}
-                      <div>
-                        <FieldLabel required>Diện tích / số lượng cây</FieldLabel>
-                        <ChipGroup
-                          options={FARM_SCALES}
-                          selected={form.farmScale}
-                          onToggle={(v) => setSingle('farmScale', v)}
-                          multi={false}
-                        />
-                        {form.farmScale === 'Khác' && (
-                          <div className="mt-2">
-                            <TextInput
-                              name="farmScaleOther" value={form.farmScaleOther} onChange={handleChange}
-                              placeholder="Nhập diện tích hoặc số lượng cây"
-                            />
-                          </div>
-                        )}
-                      </div>
+                    <div>
+                      <FieldLabel>Email (nếu có)</FieldLabel>
+                      <TextInput
+                        name="email" type="email" value={form.email} onChange={handleChange}
+                        placeholder="Nhập email của bạn"
+                      />
+                    </div>
+                    <div>
+                      <FieldLabel>Nội dung chi tiết (mô tả thêm về vườn / nhu cầu)</FieldLabel>
+                      <textarea
+                        name="detailMessage"
+                        rows={4}
+                        value={form.detailMessage}
+                        onChange={handleChange}
+                        placeholder="Mô tả chi tiết hơn về vườn, hiện trạng cây, mục tiêu và câu hỏi của bạn..."
+                        className="w-full resize-none rounded-xl border border-soft px-4 py-2.5 text-sm text-ink placeholder:text-faint outline-none transition-colors duration-150 focus:border-primary"
+                      />
                     </div>
 
-                    {/* ── Section C: Tình trạng & nhu cầu ── */}
-                    <div className="space-y-5 p-6">
-                      <p className="text-xs font-bold uppercase tracking-wider text-secondary">
-                        C. Tình trạng &amp; nhu cầu tư vấn
-                      </p>
+                    <button
+                      type="submit"
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-150 hover:bg-primary-dark hover:border-primary-dark hover:shadow-md active:scale-[0.99]"
+                    >
+                      <Send size={16} />
+                      Gửi yêu cầu tư vấn
+                    </button>
 
-                      {/* Tình trạng cây hiện tại */}
-                      <div>
-                        <FieldLabel required>Tình trạng cây hiện tại</FieldLabel>
-                        <ChipGroup
-                          options={PLANT_CONDITIONS}
-                          selected={form.currentIssues}
-                          onToggle={(v) => toggleMulti('currentIssues', v)}
-                        />
-                        {form.currentIssues.includes('Khác') && (
-                          <div className="mt-2">
-                            <TextInput
-                              name="currentIssueOther" value={form.currentIssueOther} onChange={handleChange}
-                              placeholder="Mô tả tình trạng khác"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Bạn cần tư vấn? */}
-                      <div>
-                        <FieldLabel required>Bạn cần tư vấn?</FieldLabel>
-                        <ChipGroup
-                          options={CONSULTING_NEEDS}
-                          selected={form.consultingNeeds}
-                          onToggle={(v) => toggleMulti('consultingNeeds', v)}
-                        />
-                        {form.consultingNeeds.includes('Khác') && (
-                          <div className="mt-2">
-                            <TextInput
-                              name="consultingNeedOther" value={form.consultingNeedOther} onChange={handleChange}
-                              placeholder="Nhập nhu cầu tư vấn khác"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* ── Section D: Nội dung chi tiết + submit ── */}
-                    <div className="space-y-4 p-6">
-                      <p className="text-xs font-bold uppercase tracking-wider text-secondary">
-                        D. Nội dung chi tiết
-                      </p>
-                      <div>
-                        <FieldLabel required>Mô tả thêm về vườn / nhu cầu của bạn</FieldLabel>
-                        <textarea
-                          name="detailMessage"
-                          rows={4}
-                          value={form.detailMessage}
-                          onChange={handleChange}
-                          required
-                          placeholder="Mô tả chi tiết hơn về vườn, hiện trạng cây, mục tiêu và câu hỏi của bạn..."
-                          className="w-full resize-none rounded-xl border border-soft px-4 py-2.5 text-sm text-ink placeholder:text-faint outline-none transition-colors duration-150 focus:border-primary"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-white px-6 py-3.5 text-sm font-bold text-primary shadow-sm transition-all duration-150 hover:bg-primary hover:text-white hover:shadow-md active:scale-[0.99]"
-                      >
-                        <Send size={16} />
-                        Gửi yêu cầu tư vấn
-                      </button>
-
-                      <p className="text-center text-xs text-faint">
-                        Merifarm sẽ liên hệ lại trong thời gian sớm nhất để hỗ trợ tư vấn phù hợp với nhu cầu thực tế.
-                      </p>
-                    </div>
+                    <p className="text-center text-xs text-faint">
+                      Merifarm sẽ liên hệ lại trong thời gian sớm nhất để hỗ trợ tư vấn phù hợp với nhu cầu thực tế.
+                    </p>
                   </form>
                 )}
               </div>

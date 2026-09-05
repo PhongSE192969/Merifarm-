@@ -54,7 +54,7 @@ const AUDIENCES = [
     icon: Store,
     title: 'Cửa hàng vật tư nông nghiệp',
     image: 'https://images.unsplash.com/photo-1722893960889-5f2d88ce6524?w=600&q=80&auto=format&fit=crop',
-    text: 'Cung cấp danh mục sản phẩm dễ tư vấn, phù hợp với nhu cầu thực tế của khách hàng địa phương.',
+    text: 'Cung cấp danh mục sản phẩm phân bón dễ tư vấn, phù hợp với nhu cầu thực tế của khách hàng địa phương.',
   },
   {
     icon: Handshake,
@@ -301,7 +301,7 @@ export default function AboutPage() {
 
       {/* ── 4. AUDIENCE — thumbnail-image cards ── */}
       <section className="py-16">
-        <div className="mx-auto max-w-6xl px-4">
+        <div className="mx-auto max-w-7xl px-4">
           <Reveal>
             <SectionHeading
               eyebrow="ĐỐI TƯỢNG PHỤC VỤ"
@@ -310,7 +310,7 @@ export default function AboutPage() {
               center
             />
           </Reveal>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
             {AUDIENCES.map((item, i) => (
               <Reveal key={item.title} delay={i * 80}>
                 <div className="group h-full overflow-hidden rounded-card border border-soft bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-md">
@@ -329,8 +329,8 @@ export default function AboutPage() {
                     </div>
                   </div>
                   {/* Content */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-ink">{item.title}</h3>
+                  <div className="p-3 sm:p-4">
+                    <h3 className="text-sm font-semibold leading-snug text-ink lg:whitespace-nowrap">{item.title}</h3>
                     <p className="mt-1.5 text-xs leading-relaxed text-secondary">{item.text}</p>
                   </div>
                 </div>

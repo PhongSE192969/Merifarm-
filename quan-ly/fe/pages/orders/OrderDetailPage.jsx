@@ -10,7 +10,7 @@ import { getOrder, updateOrderStatus, updateOrderFlags } from '../../../../src/s
 import { formatPrice } from '../../../../src/utils/format'
 
 const DELIVERY_LABELS = { delivery: 'Giao hàng tận nơi', pickup: 'Nhận tại kho / cửa hàng', consult: 'Cần tư vấn trước khi giao' }
-const PAYMENT_LABELS = { cod: 'Thanh toán khi nhận hàng (COD)', transfer: 'Chuyển khoản / MoMo' }
+const PAYMENT_LABELS = { cod: 'Thanh toán khi nhận hàng (COD)', transfer: 'Chuyển khoản / MoMo', lien_he: 'Chưa chọn — cần liên hệ báo giá' }
 
 export default function OrderDetailPage() {
   const { code } = useParams()

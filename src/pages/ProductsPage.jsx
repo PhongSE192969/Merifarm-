@@ -6,7 +6,6 @@ import SectionHeading from '../components/ui/SectionHeading'
 import categories from '../data/categories.json'
 import cropTypes from '../data/cropTypes.json'
 import usageNeeds from '../data/usageNeeds.json'
-import productForms from '../data/productForms.json'
 import { listProducts } from '../services/productsService'
 
 const PAGE_SIZE = 9
@@ -14,8 +13,6 @@ const PAGE_SIZE = 9
 const SORT_OPTIONS = [
   { id: 'default', label: 'Mới nhất' },
   { id: 'name-asc', label: 'Tên A-Z' },
-  { id: 'price-asc', label: 'Giá thấp đến cao' },
-  { id: 'price-desc', label: 'Giá cao đến thấp' },
 ]
 
 function FilterGroup({ title, options, activeId, onSelect, getLabel = (o) => o.name }) {
@@ -57,7 +54,6 @@ export default function ProductsPage() {
   const activeCategory = searchParams.get('category') || ''
   const activeCrop = searchParams.get('crop') || ''
   const activeNeed = searchParams.get('need') || ''
-  const [activeForm, setActiveForm] = useState('')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('default')
   const [page, setPage] = useState(1)
@@ -72,7 +68,7 @@ export default function ProductsPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  useEffect(() => { setPage(1) }, [activeCategory, activeCrop, activeNeed, activeForm, search, sort])
+  useEffect(() => { setPage(1) }, [activeCategory, activeCrop, activeNeed, search, sort])
 
   // Prevent body scroll when sheet open
   useEffect(() => {
@@ -92,31 +88,20 @@ export default function ProductsPage() {
       if (activeCategory && p.category !== activeCategory) return false
       if (activeCrop && !p.cropTypes.includes(activeCrop)) return false
       if (activeNeed && !p.usageNeeds?.includes(activeNeed)) return false
-      if (activeForm && p.form !== activeForm) return false
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false
       return true
     })
     if (sort === 'name-asc') list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'vi'))
-    else if (sort === 'price-asc' || sort === 'price-desc') {
-      const dir = sort === 'price-asc' ? 1 : -1
-      list = [...list].sort((a, b) => {
-        if (a.price === null && b.price === null) return 0
-        if (a.price === null) return 1
-        if (b.price === null) return -1
-        return (a.price - b.price) * dir
-      })
-    }
     return list
-  }, [allProducts, activeCategory, activeCrop, activeNeed, activeForm, search, sort])
+  }, [allProducts, activeCategory, activeCrop, activeNeed, search, sort])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  const hasFilters = activeCategory || activeCrop || activeNeed || activeForm || search
-  const activeFilterCount = [activeCategory, activeCrop, activeNeed, activeForm].filter(Boolean).length
+  const hasFilters = activeCategory || activeCrop || activeNeed || search
+  const activeFilterCount = [activeCategory, activeCrop, activeNeed].filter(Boolean).length
 
   const clearFilters = () => {
     setSearchParams({})
-    setActiveForm('')
     setSearch('')
   }
 
@@ -132,10 +117,9 @@ export default function ProductsPage() {
           className="w-full rounded-full border border-soft bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
         />
       </div>
-      <FilterGroup title="Danh mục" options={categories} activeId={activeCategory} onSelect={(id) => setParam('category', id)} />
-      <FilterGroup title="Loại cây trồng" options={cropTypes} activeId={activeCrop} onSelect={(id) => setParam('crop', id)} />
       <FilterGroup title="Nhu cầu sử dụng" options={usageNeeds} activeId={activeNeed} onSelect={(id) => setParam('need', id)} />
-      <FilterGroup title="Dạng sản phẩm" options={productForms} activeId={activeForm} onSelect={setActiveForm} />
+      <FilterGroup title="Loại cây trồng" options={cropTypes} activeId={activeCrop} onSelect={(id) => setParam('crop', id)} />
+      <FilterGroup title="Danh mục" options={categories} activeId={activeCategory} onSelect={(id) => setParam('category', id)} />
       {hasFilters && (
         <button type="button" onClick={clearFilters} className="flex items-center gap-1 text-sm font-medium text-accent-dark hover:underline">
           <X size={14} /> Xóa bộ lọc

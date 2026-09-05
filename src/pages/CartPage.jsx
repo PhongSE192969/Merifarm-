@@ -2,29 +2,18 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Minus, Plus, Trash2, ShoppingBag, ChevronRight, Truck, Store, PhoneCall,
-  CreditCard, Banknote, UserCheck, AlertCircle, Package, MapPin, CheckSquare,
-  ChevronDown, Search, X, PenLine, CheckCircle2, Copy, Loader2,
+  UserCheck, AlertCircle, Package, MapPin, CheckSquare,
+  ChevronDown, Search, X, PenLine,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import FormField, { inputCls } from '../components/ui/FormField'
 import OptionPicker from '../components/ui/OptionPicker'
 import { useCartStore } from '../store/cartStore'
-import { formatPrice } from '../utils/format'
 import { VIETNAM_PROVINCES_2025, getWardOptionsByProvince } from '../data/vietnam-address-2025'
-import * as couponsService from '../services/couponsService'
 import * as ordersService from '../services/ordersService'
 import * as settingsService from '../services/settingsService'
 
 const ESTIMATED_SHIPPING = 30000
-
-// Dùng khi chưa tải được cài đặt thanh toán / kho vận từ Supabase (mất mạng, chưa cấu hình...).
-const FALLBACK_BANK_INFO = {
-  company: 'CÔNG TY TNHH CÔNG NGHỆ DVP-DEDITECH',
-  bank: 'Ngân hàng MB Bank - Ngân hàng Thương mại cổ phần Quân đội',
-  accountNumber: '952076868',
-  accountHolder: 'CONG TY TNHH CONG NGHE DVP-DEDITECH',
-  qrImage: '/payment/qr-mbbank.png',
-}
 
 const FALLBACK_WAREHOUSE = {
   address: 'Số 5-7, Đường số 32, Phường Bình Phú',
@@ -50,17 +39,6 @@ function buildDeliveryOptions(w) {
     },
   ]
 }
-
-const PAYMENT_OPTIONS = [
-  {
-    value: 'cod', icon: CreditCard, label: 'Thanh toán khi nhận hàng (COD)',
-    sublabel: 'Trả tiền mặt hoặc chuyển khoản khi nhận được hàng.',
-  },
-  {
-    value: 'transfer', icon: Banknote, label: 'Thanh Toán Trực tuyến (Ngân hàng/MoMo)',
-    sublabel: 'Thanh toán trực tuyến',
-  },
-]
 
 // ─── SearchableSelect ────────────────────────────────────────────────────────
 // options: string[] — list of known option names
@@ -215,7 +193,6 @@ export default function CartPage() {
   const removeItem = useCartStore((s) => s.removeItem)
   const clearCart  = useCartStore((s) => s.clearCart)
   const totalPrice = useCartStore((s) => s.totalPrice())
-  const hasQuotePending = useCartStore((s) => s.hasQuotePendingItems())
   const navigate = useNavigate()
 
   const [removing, setRemoving] = useState(null)
@@ -223,8 +200,6 @@ export default function CartPage() {
     name: '', phone: '', email: '',
     deliveryMethod: 'delivery',
     street: '', province: '', ward: '', country: 'Việt Nam',
-    paymentMethod: '',
-    couponCode: '',
     eInvoice: false,
     invoiceType: 'company',
     invoiceName: '', invoiceAddress: '', invoiceTaxCode: '', invoiceEmail: '',
@@ -233,33 +208,14 @@ export default function CartPage() {
   const [errors, setErrors] = useState({})
   const [invoiceErrors, setInvoiceErrors] = useState({})
   const [showInvoiceModal, setShowInvoiceModal] = useState(false)
-  const [coupon, setCoupon] = useState(null)
-  const [couponError, setCouponError] = useState('')
-  const [couponChecking, setCouponChecking] = useState(false)
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
-  const [showTransferModal, setShowTransferModal] = useState(false)
-  const [transferStatus, setTransferStatus] = useState('idle') // idle | checking | success
-  const [bankInfo, setBankInfo] = useState(FALLBACK_BANK_INFO)
   const [warehouse, setWarehouse] = useState(FALLBACK_WAREHOUSE)
   const formRef = useRef(null)
-  const pollAttemptsRef = useRef(0)
 
   useEffect(() => {
     let cancelled = false
-    settingsService.getPaymentSettings()
-      .then((settings) => {
-        if (cancelled || !settings) return
-        setBankInfo({
-          company: FALLBACK_BANK_INFO.company,
-          bank: settings.bankName || FALLBACK_BANK_INFO.bank,
-          accountNumber: settings.accountNumber || FALLBACK_BANK_INFO.accountNumber,
-          accountHolder: settings.accountHolder || FALLBACK_BANK_INFO.accountHolder,
-          qrImage: settings.qrImage || FALLBACK_BANK_INFO.qrImage,
-        })
-      })
-      .catch(() => {}) // giữ nguyên thông tin mặc định nếu chưa cấu hình Supabase
     settingsService.getWarehouseSettings()
       .then((w) => {
         if (cancelled || !w) return
@@ -274,51 +230,12 @@ export default function CartPage() {
     return () => { cancelled = true }
   }, [])
 
-  // Demo-only stand-in for the backend payment webhook/poll endpoint — remove
-  // once real payment gateway integration is wired up.
-  async function pollTransferPaymentStatus() {
-    pollAttemptsRef.current += 1
-    return pollAttemptsRef.current >= 3
-  }
-
   const deliveryOptions = buildDeliveryOptions(warehouse)
 
-  const originalSubtotal = items.reduce((sum, i) => sum + (i.originalPrice ?? i.price ?? 0) * i.qty, 0)
-  const productDiscount = Math.max(originalSubtotal - totalPrice, 0)
-
+  // Tiền hàng/phí ship vẫn tính thật ở đây để Merifarm có số liệu tham khảo nội bộ
+  // khi báo giá — chỉ không hiển thị cho khách trên trang này.
   const shipping = items.length === 0 ? 0 : ESTIMATED_SHIPPING
-  const discount = coupon
-    ? (coupon.type === 'fixed' ? coupon.value : Math.round((totalPrice * coupon.value) / 100))
-    : 0
-  const estimated = Math.max(totalPrice + shipping - discount, 0)
-
-  async function applyCoupon() {
-    const code = form.couponCode.trim().toUpperCase()
-    if (!code) return
-    setCouponChecking(true)
-    try {
-      const result = await couponsService.validateCoupon(code)
-      if (!result.valid) {
-        setCoupon(null)
-        setCouponError(result.reason || 'Mã ưu đãi không hợp lệ.')
-        return
-      }
-      setCoupon({ code: result.coupon.code, type: result.coupon.type, value: result.coupon.value })
-      setCouponError('')
-      setFormField('couponCode', result.coupon.code)
-    } catch {
-      setCoupon(null)
-      setCouponError('Không thể kiểm tra mã ưu đãi lúc này, vui lòng thử lại.')
-    } finally {
-      setCouponChecking(false)
-    }
-  }
-
-  function removeCoupon() {
-    setCoupon(null)
-    setCouponError('')
-    setFormField('couponCode', '')
-  }
+  const estimated = totalPrice + shipping
 
   const provinceOptions = VIETNAM_PROVINCES_2025
   const availableWards = form.province ? getWardOptionsByProvince(form.province) : []
@@ -384,7 +301,6 @@ export default function CartPage() {
     const phone = form.phone.replace(/[\s-]/g, '')
     if (!phone) e.phone = 'Vui lòng nhập số điện thoại hợp lệ.'
     else if (!/^0[3-9]\d{8}$/.test(phone)) e.phone = 'Vui lòng nhập số điện thoại hợp lệ (VD: 0901234567).'
-    if (!form.paymentMethod) e.paymentMethod = 'Vui lòng chọn phương thức thanh toán.'
     if (form.deliveryMethod === 'delivery') {
       if (!form.street.trim()) e.street = 'Vui lòng nhập số nhà, tên đường.'
       if (!form.province) e.province = 'Vui lòng chọn Tỉnh / Thành phố.'
@@ -407,12 +323,13 @@ export default function CartPage() {
     return {
       code: orderCode,
       items: items.map((i) => ({ ...i })),
-      form: { ...form, provinceName: form.province },
+      form: { ...form, provinceName: form.province, paymentMethod: 'lien_he' },
+      // Tiền hàng/phí ship/tổng vẫn gửi kèm để Merifarm tham khảo nội bộ khi báo giá —
+      // trang này không hiển thị các số liệu đó cho khách.
       subtotal: totalPrice,
       shipping,
-      coupon: coupon ? { code: coupon.code, discount } : null,
+      coupon: null,
       total: estimated,
-      hasQuotePending,
       submittedAt: new Date().toISOString(),
     }
   }
@@ -427,13 +344,6 @@ export default function CartPage() {
       return
     }
 
-    if (form.paymentMethod === 'transfer') {
-      pollAttemptsRef.current = 0
-      setTransferStatus('idle')
-      setShowTransferModal(true)
-      return
-    }
-
     setSubmitError('')
     setSubmitting(true)
     const orderData = buildOrderData()
@@ -442,60 +352,10 @@ export default function CartPage() {
       clearCart()
       navigate('/dat-hang-thanh-cong', { state: { order: orderData } })
     } catch {
-      setSubmitError('Không thể gửi đơn hàng lúc này, vui lòng thử lại.')
+      setSubmitError('Không thể gửi yêu cầu lúc này, vui lòng thử lại.')
       setSubmitting(false)
     }
   }
-
-  async function finalizeTransferPayment() {
-    const errs = validate()
-    if (Object.keys(errs).length > 0 || !agreed) {
-      // Payment was received, but the order details aren't complete yet —
-      // surface the form so the customer can finish it before we create the order.
-      setErrors(errs)
-      setShowTransferModal(false)
-      setTimeout(() => {
-        const first = formRef.current?.querySelector('[data-error="true"]')
-        first?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }, 50)
-      return
-    }
-
-    const orderData = buildOrderData()
-    try {
-      await ordersService.createOrder(orderData)
-      clearCart()
-      setShowTransferModal(false)
-      navigate('/dat-hang-thanh-cong', { state: { order: orderData } })
-    } catch {
-      setShowTransferModal(false)
-      setSubmitError('Đã ghi nhận thanh toán nhưng không thể lưu đơn hàng, vui lòng liên hệ Merifarm để được hỗ trợ.')
-    }
-  }
-
-  // Poll the backend for payment confirmation while the transfer modal is open.
-  // TODO(backend): replace pollTransferPaymentStatus() with a real request, e.g.
-  //   const res = await fetch(`/api/payments/${orderCodeRef.current}/status`)
-  //   const { paid } = await res.json()
-  //   return paid
-  useEffect(() => {
-    if (!showTransferModal || transferStatus !== 'idle') return
-    let cancelled = false
-
-    const interval = setInterval(async () => {
-      const paid = await pollTransferPaymentStatus()
-      if (cancelled || !paid) return
-      setTransferStatus('checking')
-      setTimeout(() => {
-        if (cancelled) return
-        setTransferStatus('success')
-        setTimeout(() => { if (!cancelled) finalizeTransferPayment() }, 1300)
-      }, 1200)
-    }, 3000)
-
-    return () => { cancelled = true; clearInterval(interval) }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showTransferModal, transferStatus])
 
   // ── Empty state ─────────────────────────────────────────────────────────────
   if (items.length === 0 && !submitting) {
@@ -527,10 +387,10 @@ export default function CartPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">GIỎ HÀNG</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">YÊU CẦU BÁO GIÁ</p>
           <h1 className="mt-1 text-2xl font-bold text-primary-dark md:text-3xl">Giỏ hàng của bạn</h1>
           <p className="mt-2 text-sm text-secondary">
-            Kiểm tra sản phẩm, nhập thông tin giao hàng và gửi yêu cầu đặt hàng để Merifarm xác nhận.
+            Kiểm tra sản phẩm, nhập thông tin nhận hàng và gửi yêu cầu — Merifarm sẽ liên hệ báo giá và xác nhận đơn.
           </p>
         </div>
 
@@ -598,12 +458,6 @@ export default function CartPage() {
                             >
                               <Plus size={13} />
                             </button>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xs text-faint">{item.price ? `${formatPrice(item.price)} / sp` : ''}</p>
-                            <p className="font-bold text-primary-dark">
-                              {item.price ? formatPrice(item.price * item.qty) : 'Liên hệ báo giá'}
-                            </p>
                           </div>
                         </div>
                         <Link
@@ -769,153 +623,35 @@ export default function CartPage() {
             {/* ── RIGHT COLUMN ── */}
             <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
 
-              {/* Order summary + Payment method + Consent/submit — merged into one card */}
+              {/* Order summary + Consent/submit — merged into one card */}
               <div className="rounded-2xl bg-white shadow-soft">
 
                 {/* Order summary */}
                 <div className="rounded-t-2xl border-b border-soft px-5 py-4">
-                  <h2 className="font-semibold text-ink">Tóm tắt đơn hàng</h2>
+                  <h2 className="font-semibold text-ink">Tóm tắt yêu cầu</h2>
                 </div>
                 <div className="p-5 space-y-3">
-                  {/* Item lines — always shown at the original (pre-discount) price */}
-                  {items.map((item) => {
-                    const lineOriginalPrice = item.originalPrice ?? item.price
-                    return (
-                      <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                        <span className="flex-1 text-secondary line-clamp-1">
-                          {item.name} <span className="text-faint">×{item.qty}</span>
-                        </span>
-                        <span className="shrink-0 font-medium text-ink">
-                          {lineOriginalPrice ? formatPrice(lineOriginalPrice * item.qty) : 'Báo giá'}
-                        </span>
-                      </div>
-                    )
-                  })}
-                  <div className="border-t border-soft pt-3 space-y-2">
-                    {productDiscount > 0 && (
-                      <>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-secondary">Giá gốc sản phẩm</span>
-                          <span className="font-medium text-faint line-through">{formatPrice(originalSubtotal)}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-secondary">Khuyến mãi</span>
-                          <span className="font-medium text-red-600">−{formatPrice(productDiscount)}</span>
-                        </div>
-                      </>
-                    )}
-                    {coupon && (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-secondary">Ưu đãi ({coupon.code})</span>
-                        <span className="font-medium text-primary">−{formatPrice(discount)}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-secondary">Tiền sản phẩm</span>
-                      <span className="font-medium text-ink">{formatPrice(totalPrice)}</span>
+                  {items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="flex-1 text-secondary line-clamp-1">{item.name}</span>
+                      <span className="shrink-0 font-medium text-ink">×{item.qty}</span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-secondary">Phí vận chuyển</span>
-                      <span className="font-medium text-ink">{formatPrice(shipping)}</span>
-                    </div>
-                  </div>
+                  ))}
                   <div className="border-t border-soft pt-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-ink">Tổng thanh toán</span>
-                      <span className="text-xl font-bold text-primary-dark">{formatPrice(estimated)}</span>
-                    </div>
-                    {hasQuotePending && (
-                      <p className="mt-1.5 text-xs text-accent-dark">
-                        Một số sản phẩm chưa có giá niêm yết — chưa tính vào tổng.
-                      </p>
-                    )}
-                    <p className="mt-2 text-xs text-faint">
-                      Phí vận chuyển là mức tạm tính. Merifarm sẽ thông báo nếu có phát sinh thêm trước khi giao hàng.
+                    <p className="text-xs text-faint">
+                      Giá và phí vận chuyển sẽ được Merifarm liên hệ báo giá cụ thể theo số lượng và địa chỉ nhận hàng của bạn.
                     </p>
                   </div>
                 </div>
 
-                {/* Mã ưu đãi (Coupon) */}
+                {/* Hóa đơn điện tử */}
                 <div className="border-t border-soft px-5 py-4">
-                  <h2 className="font-semibold text-ink">Mã ưu đãi (Coupon)</h2>
+                  <h2 className="font-semibold text-ink">Hóa đơn điện tử</h2>
                 </div>
                 <div className="p-5">
-                  {!coupon ? (
-                    <>
-                      <div className="flex gap-2">
-                        <input
-                          value={form.couponCode}
-                          onChange={(e) => {
-                            setFormField('couponCode', e.target.value)
-                            if (couponError) setCouponError('')
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') { e.preventDefault(); applyCoupon() }
-                          }}
-                          placeholder="Nhập mã ưu đãi (nếu có)"
-                          className={inputCls(couponError) + ' flex-1'}
-                        />
-                        <button
-                          type="button"
-                          disabled={!form.couponCode.trim() || couponChecking}
-                          onClick={applyCoupon}
-                          className={`shrink-0 rounded-xl border px-4 text-sm font-semibold transition-colors
-                            ${form.couponCode.trim() && !couponChecking
-                              ? 'border-primary text-primary hover:bg-primary hover:text-white cursor-pointer'
-                              : 'border-soft text-faint cursor-not-allowed'}`}
-                        >
-                          {couponChecking ? 'Đang kiểm tra...' : 'Áp dụng'}
-                        </button>
-                      </div>
-                      {couponError && (
-                        <p className="mt-1.5 flex items-center gap-1 text-xs text-red-500">
-                          <AlertCircle size={12} />{couponError}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <div className="flex items-center justify-between gap-3 rounded-xl border border-primary/30 bg-soft-green/40 px-4 py-2.5">
-                      <span className="text-sm font-medium text-primary-dark">
-                        Đã áp dụng mã <span className="font-bold">{coupon.code}</span> — giảm{' '}
-                        {coupon.type === 'fixed' ? formatPrice(coupon.value) : `${coupon.value}%`}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={removeCoupon}
-                        className="shrink-0 text-faint transition-colors hover:text-ink"
-                      >
-                        <X size={15} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Phương thức thanh toán */}
-                <div className="border-t border-soft px-5 py-4">
-                  <h2 className="font-semibold text-ink">Phương thức thanh toán</h2>
-                </div>
-                <div className="p-5">
-                  {errors.paymentMethod && (
-                    <p className="mb-2 flex items-center gap-1 text-xs text-red-500">
-                      <AlertCircle size={12} />{errors.paymentMethod}
-                    </p>
-                  )}
-                  <div data-error={!!errors.paymentMethod}>
-                    <OptionPicker
-                      options={PAYMENT_OPTIONS}
-                      value={form.paymentMethod}
-                      onChange={(v) => {
-                        setForm((f) => ({ ...f, paymentMethod: v }))
-                        setErrors((e) => ({ ...e, paymentMethod: undefined }))
-                      }}
-                      placeholder="— Chọn phương thức thanh toán —"
-                      error={errors.paymentMethod}
-                    />
-                  </div>
-
-                  <div className="mt-3.5 flex items-center justify-between gap-3 border-t border-soft pt-3.5">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-medium text-ink">Hóa đơn điện tử</p>
+                      <p className="text-sm font-medium text-ink">Xuất hóa đơn VAT</p>
                       <p className="mt-0.5 text-xs text-secondary">Xuất hóa đơn VAT cho đơn hàng này.</p>
                     </div>
                     <button
@@ -1003,7 +739,7 @@ export default function CartPage() {
                     ) : (
                       <>
                         <Package size={16} />
-                        Gửi yêu cầu đặt hàng
+                        Gửi yêu cầu báo giá
                       </>
                     )}
                   </button>
@@ -1131,136 +867,21 @@ export default function CartPage() {
           </div>
         )}
 
-        {/* ── Bank transfer / MOMO QR modal ─────────────────────────── */}
-        {showTransferModal && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-            onClick={() => transferStatus === 'idle' && setShowTransferModal(false)}
-          >
-            <div
-              className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between border-b border-soft px-6 py-4">
-                <h3 className="text-lg font-bold text-ink">Thanh Toán Trực tuyến (Ngân hàng/MoMo)</h3>
-                {transferStatus === 'idle' && (
-                  <button
-                    type="button"
-                    onClick={() => setShowTransferModal(false)}
-                    className="text-faint transition-colors hover:text-ink"
-                  >
-                    <X size={18} />
-                  </button>
-                )}
-              </div>
-
-              {transferStatus === 'success' ? (
-                <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
-                  <CheckCircle2 size={52} className="text-primary" />
-                  <p className="text-lg font-bold text-ink">Thanh toán thành công!</p>
-                  <p className="text-sm text-secondary">Đang chuyển đến trang xác nhận đơn hàng...</p>
-                </div>
-              ) : (
-                <div className="grid gap-6 p-6 sm:grid-cols-2">
-                  {/* Left: bank details */}
-                  <div className="space-y-3 text-sm">
-                    <div>
-                      <p className="text-xs text-faint">Công ty</p>
-                      <p className="font-semibold text-ink">{bankInfo.company}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-faint">Ngân hàng</p>
-                      <p className="font-semibold text-ink">{bankInfo.bank}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-faint">Số tài khoản</p>
-                      <div className="flex items-center gap-2">
-                        <p className="font-bold text-primary-dark">{bankInfo.accountNumber}</p>
-                        <button
-                          type="button"
-                          onClick={() => navigator.clipboard?.writeText(bankInfo.accountNumber)}
-                          title="Sao chép số tài khoản"
-                          className="text-faint transition-colors hover:text-primary"
-                        >
-                          <Copy size={13} />
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-xs text-faint">Chủ tài khoản</p>
-                      <p className="font-semibold text-ink">{bankInfo.accountHolder}</p>
-                    </div>
-                    <div className="border-t border-soft pt-3">
-                      <p className="text-xs text-faint">Số tiền cần chuyển</p>
-                      <p className="text-xl font-bold text-primary-dark">{formatPrice(estimated)}</p>
-                    </div>
-                  </div>
-
-                  {/* Right: QR with scanning effect */}
-                  <div className="flex flex-col items-center justify-center gap-3">
-                    <div className="relative h-[190px] w-[190px] overflow-hidden rounded-xl border border-soft">
-                      <img
-                        src={bankInfo.qrImage}
-                        alt="Mã QR thanh toán MB Bank"
-                        className="h-full w-full object-contain p-2"
-                      />
-                      {transferStatus === 'idle' && (
-                        <span className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-qr-scan" />
-                      )}
-                      {transferStatus === 'checking' && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-white/80">
-                          <Loader2 size={28} className="animate-spin text-primary" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-center text-xs text-faint">Quét mã bằng app ngân hàng hoặc MOMO để thanh toán</p>
-                  </div>
-                </div>
-              )}
-
-              {transferStatus !== 'success' && (
-                <div className="border-t border-soft px-6 py-4 text-center">
-                  <div className="flex items-center justify-center gap-2 text-sm font-semibold text-ink">
-                    <Loader2 size={16} className="animate-spin text-primary" />
-                    {transferStatus === 'checking' ? 'Đang xác nhận giao dịch...' : 'Đang chờ xác nhận thanh toán...'}
-                  </div>
-                  <p className="mt-2 text-xs text-faint">
-                    Hệ thống sẽ tự động xác nhận ngay khi Merifarm nhận được thanh toán của bạn.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowTransferModal(false)}
-                    className="mt-3 text-xs font-semibold text-faint transition-colors hover:text-primary"
-                  >
-                    ← Quay lại
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* ── Mobile sticky bottom bar ─────────────────────────────── */}
         <div
           className="fixed inset-x-0 bottom-0 z-40 border-t border-soft bg-white px-4 py-3 shadow-xl lg:hidden"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
         >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs text-secondary">Tổng dự kiến</p>
-              <p className="text-lg font-bold text-primary-dark">{formatPrice(estimated)}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => formRef.current?.requestSubmit()}
-              disabled={!agreed || submitting}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-primary bg-primary py-3 text-sm font-bold text-white transition-all duration-200 hover:bg-primary-dark hover:border-primary-dark
-                ${agreed && !submitting ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-            >
-              <Package size={15} />
-              {submitting ? 'Đang gửi...' : 'Gửi đơn hàng'}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => formRef.current?.requestSubmit()}
+            disabled={!agreed || submitting}
+            className={`flex w-full items-center justify-center gap-2 rounded-full border-2 border-primary bg-primary py-3 text-sm font-bold text-white transition-all duration-200 hover:bg-primary-dark hover:border-primary-dark
+              ${agreed && !submitting ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+          >
+            <Package size={15} />
+            {submitting ? 'Đang gửi...' : 'Gửi yêu cầu báo giá'}
+          </button>
         </div>
         {/* Spacer so content isn't hidden by sticky bar */}
         <div className="h-20 lg:hidden" />

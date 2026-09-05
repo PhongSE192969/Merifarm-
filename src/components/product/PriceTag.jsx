@@ -1,23 +1,23 @@
-import { formatPrice } from '../../utils/format'
+import { Link } from 'react-router-dom'
+import { Phone } from 'lucide-react'
 
-export default function PriceTag({ price, originalPrice, className = 'text-lg font-bold', color = 'text-primary' }) {
-  const hasDiscount = typeof originalPrice === 'number' && typeof price === 'number' && originalPrice > price
+const SIZES = {
+  sm: { pad: 'px-3 py-1', text: 'text-xs', icon: 12 },
+  md: { pad: 'px-4 py-1.5', text: 'text-sm', icon: 14 },
+  lg: { pad: 'px-5 py-2', text: 'text-base', icon: 16 },
+}
 
-  if (!hasDiscount) {
-    return <span className={`${className} ${color}`}>{formatPrice(price)}</span>
-  }
-
-  const percent = Math.round((1 - price / originalPrice) * 100)
-
+// Giá sản phẩm không còn hiển thị công khai trên web — thay bằng nút "Liên hệ"
+// dẫn đến trang liên hệ để khách được báo giá trực tiếp.
+export default function PriceTag({ size = 'md' }) {
+  const s = SIZES[size] || SIZES.md
   return (
-    <span className="inline-flex flex-col items-start gap-1">
-      <span className="w-fit rounded-full bg-red-50 px-1.5 py-0.5 text-[11px] font-bold text-red-600 ring-1 ring-red-200">
-        -{percent}%
-      </span>
-      <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className={`${className} text-red-600`}>{formatPrice(price)}</span>
-        <span className="text-sm font-medium text-red-400 line-through">{formatPrice(originalPrice)}</span>
-      </span>
-    </span>
+    <Link
+      to="/lien-he"
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border-2 border-primary bg-primary font-bold text-white transition-colors hover:bg-primary-dark hover:border-primary-dark ${s.pad} ${s.text}`}
+    >
+      <Phone size={s.icon} />
+      Liên hệ
+    </Link>
   )
 }

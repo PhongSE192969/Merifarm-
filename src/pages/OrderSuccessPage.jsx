@@ -1,9 +1,8 @@
 import { useLocation, Link } from 'react-router-dom'
 import {
   CheckCircle2, Package, Truck, ClipboardCheck, Handshake, MapPin,
-  ArrowRight, Phone, ChevronRight, User, CreditCard, FileText,
+  ArrowRight, Phone, ChevronRight, User, FileText,
 } from 'lucide-react'
-import { formatPrice } from '../utils/format'
 import Button from '../components/ui/Button'
 
 const STEPS = [
@@ -14,12 +13,6 @@ const STEPS = [
   { icon: MapPin,         label: 'Đang giao hàng' },
   { icon: CheckCircle2,   label: 'Giao hàng thành công' },
 ]
-
-const PAYMENT_LABELS = {
-  cod: 'Thanh toán khi nhận hàng (COD)',
-  transfer: 'Chuyển khoản sau khi Merifarm xác nhận',
-  consult: 'Nhân viên tư vấn phương thức thanh toán',
-}
 
 const DELIVERY_LABELS = {
   delivery: 'Giao hàng tận nơi',
@@ -58,7 +51,7 @@ export default function OrderSuccessPage() {
     )
   }
 
-  const { code, items, form, subtotal, shipping, total, hasQuotePending } = order
+  const { code, items, form } = order
   const activeStep = 0
 
   return (
@@ -163,9 +156,6 @@ export default function OrderSuccessPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{item.name}</p>
                     <p className="text-xs text-faint">{item.packageUnit} &bull; ×{item.qty}</p>
-                    <p className="mt-0.5 text-sm font-bold text-primary-dark">
-                      {item.price ? formatPrice(item.price * item.qty) : 'Liên hệ báo giá'}
-                    </p>
                   </div>
                 </div>
               ))}
@@ -190,34 +180,18 @@ export default function OrderSuccessPage() {
                 />
               )}
               {form.note && <InfoRow label="Ghi chú" value={form.note} />}
-              <InfoRow label="Thanh toán" value={PAYMENT_LABELS[form.paymentMethod]} />
             </div>
           </div>
 
-          {/* Cost summary */}
+          {/* Quote notice */}
           <div className="rounded-2xl bg-white shadow-soft overflow-hidden">
             <div className="border-b border-soft px-5 py-4 flex items-center gap-2">
-              <CreditCard size={16} className="text-primary" />
-              <h2 className="font-semibold text-ink text-sm">Chi phí dự kiến</h2>
+              <Phone size={16} className="text-primary" />
+              <h2 className="font-semibold text-ink text-sm">Báo giá &amp; thanh toán</h2>
             </div>
-            <div className="p-5 space-y-2.5">
-              <div className="flex justify-between text-sm">
-                <span className="text-secondary">Tiền sản phẩm</span>
-                <span className="font-medium text-ink">{formatPrice(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-secondary">Phí vận chuyển tạm tính</span>
-                <span className="font-medium text-ink">{formatPrice(shipping)}</span>
-              </div>
-              <div className="border-t border-soft pt-2.5 flex justify-between">
-                <span className="font-semibold text-ink">Tổng thanh toán dự kiến</span>
-                <span className="text-lg font-bold text-primary-dark">{formatPrice(total)}</span>
-              </div>
-              {hasQuotePending && (
-                <p className="text-xs text-accent-dark">Một số sản phẩm chưa có giá niêm yết — chưa tính vào tổng.</p>
-              )}
-              <p className="text-xs text-faint leading-relaxed">
-                Tổng thanh toán dự kiến có thể thay đổi sau khi Merifarm xác nhận phí vận chuyển thực tế theo địa chỉ và khối lượng đơn hàng.
+            <div className="p-5">
+              <p className="text-sm text-secondary leading-relaxed">
+                Merifarm sẽ liên hệ qua số điện thoại bạn cung cấp để báo giá sản phẩm, phí vận chuyển và thống nhất phương thức thanh toán phù hợp trước khi giao hàng.
               </p>
             </div>
           </div>
