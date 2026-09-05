@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ClipboardList, Wallet, Clock, Package, ChevronRight } from 'lucide-react'
+import { ClipboardList, Wallet, Clock, Package, ChevronRight, Eye, Users } from 'lucide-react'
 import PageHeader from '../components/common/PageHeader'
 import StatCard from '../components/common/StatCard'
 import StatusBadge from '../components/common/StatusBadge'
 import StatusDonut from '../components/common/StatusDonut'
 import { getDashboardStats, listRecentOrders } from '../../../src/services/ordersService'
 import { listProducts } from '../../../src/services/productsService'
+import { getAnalyticsSummary } from '../../../src/services/analyticsService'
 import { formatPrice } from '../../../src/utils/format'
+
+const ANALYTICS_DAYS = 7
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -15,6 +18,9 @@ export default function DashboardPage() {
   const [productCount, setProductCount] = useState(null)
   const [recent, setRecent] = useState([])
   const [loading, setLoading] = useState(true)
+  const [analytics, setAnalytics] = useState(null)
+  const [analyticsError, setAnalyticsError] = useState('')
+  const [analyticsLoading, setAnalyticsLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([getDashboardStats(), listProducts(), listRecentOrders(6)])
@@ -24,6 +30,13 @@ export default function DashboardPage() {
         setRecent(recentOrders)
       })
       .finally(() => setLoading(false))
+
+    // Lượt truy cập web lấy trực tiếp từ Vercel Web Analytics — độc lập với dữ liệu
+    // đơn hàng ở trên, lỗi ở đây không nên chặn phần còn lại của Tổng quan.
+    getAnalyticsSummary(ANALYTICS_DAYS)
+      .then(setAnalytics)
+      .catch((err) => setAnalyticsError(err.message || 'Không lấy được số liệu truy cập.'))
+      .finally(() => setAnalyticsLoading(false))
   }, [])
 
   return (
@@ -35,6 +48,23 @@ export default function DashboardPage() {
         <StatCard tone="accent" icon={Wallet} label="Doanh thu tạm tính" value={loading ? '—' : formatPrice(stats.revenue)} hint="Không tính đơn đã hủy" />
         <StatCard tone="rose" icon={Clock} label="Đơn đang chờ xử lý" value={loading ? '—' : stats.pendingCount} />
         <StatCard tone="blue" icon={Package} label="Số sản phẩm hiện có" value={loading ? '—' : productCount} />
+      </div>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <StatCard
+          tone="blue"
+          icon={Eye}
+          label="Lượt xem trang web"
+          value={analyticsLoading ? '—' : analyticsError ? 'Chưa có dữ liệu' : analytics.pageviews.toLocaleString('vi-VN')}
+          hint={analyticsError ? analyticsError : `${ANALYTICS_DAYS} ngày qua · Vercel Analytics`}
+        />
+        <StatCard
+          tone="accent"
+          icon={Users}
+          label="Khách truy cập"
+          value={analyticsLoading ? '—' : analyticsError ? 'Chưa có dữ liệu' : analytics.visitors.toLocaleString('vi-VN')}
+          hint={analyticsError ? analyticsError : `${ANALYTICS_DAYS} ngày qua · Vercel Analytics`}
+        />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1.4fr]">

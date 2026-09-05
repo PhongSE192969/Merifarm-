@@ -151,3 +151,26 @@ thẳng** mật khẩu mới cho người khác thay vì gửi email đặt lạ
 mọi quyền hạn của nó đều bị giới hạn bởi RLS ở mục 4. Khóa `service_role` (toàn
 quyền, bỏ qua RLS) **không được xuất hiện ở bất kỳ đâu trong code FE**, chỉ dùng ở
 Edge Function (mục 7) khi đội BE triển khai.
+
+## 9. Lượt truy cập web (Vercel Analytics) trong Tổng quan
+
+Trang Tổng quan (`DashboardPage.jsx`) hiển thị "Lượt xem trang" và "Khách truy
+cập" (7 ngày qua) lấy trực tiếp từ Vercel Web Analytics, qua đường đi:
+
+`DashboardPage.jsx` → `src/services/analyticsService.js` → `api/analytics-summary.js`
+(Vercel Serverless Function) → Vercel Web Analytics API (`api.vercel.com`).
+
+Token gọi API của Vercel chỉ được giữ ở biến môi trường **phía server** (đặt trong
+Vercel Project Settings → Environment Variables, KHÔNG có tiền tố `VITE_` nên
+không bao giờ bị nhúng vào bundle trình duyệt):
+
+| Biến | Lấy ở đâu |
+|---|---|
+| `VERCEL_ANALYTICS_TOKEN` | Vercel → Account Settings → Tokens (tạo mới) |
+| `VERCEL_PROJECT_ID` | Vercel → Project Settings → General → Project ID |
+| `VERCEL_TEAM_ID` | Chỉ cần nếu project nằm trong 1 Team (không phải tài khoản cá nhân) — Team Settings → General |
+
+Nếu chưa cấu hình đủ 2 biến bắt buộc, hoặc gói Vercel hiện tại không cho gọi API
+này, 2 thẻ số liệu trên sẽ hiện "Chưa có dữ liệu" kèm lý do — không bao giờ hiện
+số giả. Chạy `npm run dev` (Vite thường) sẽ không gọi được `/api/*` (cần
+`vercel dev` hoặc đã deploy lên Vercel).
