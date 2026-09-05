@@ -1,7 +1,16 @@
-// Vercel Serverless Function — dữ liệu cho biểu đồ đường "Thống kê truy cập
+// Vercel Serverless Function — dữ liệu cho biểu đồ đường và các bảng phân loại
+// (Quốc gia / Thiết bị / Trình duyệt / Hệ điều hành) ở phần "Thống kê truy cập
 // website" trong Tổng quan. Cùng cơ chế xác thực server-only như
 // api/analytics-summary.js (xem file đó để biết các biến môi trường cần cấu hình).
 const BUCKETS = { day: 14, week: 8, month: 6 }
+
+function toShareRows(rows, dimensionKey, totalVisitors) {
+  return rows.map((row) => ({
+    label: row[dimensionKey] || 'Others',
+    visitors: row.visitors ?? 0,
+    share: totalVisitors ? Math.round(((row.visitors ?? 0) / totalVisitors) * 100) : 0,
+  }))
+}
 
 export default async function handler(req, res) {
   const token = process.env.VERCEL_ANALYTICS_TOKEN
@@ -31,14 +40,16 @@ export default async function handler(req, res) {
   const query = (path, extra) => fetch(`https://api.vercel.com${path}?${new URLSearchParams({ ...baseParams, ...extra })}`, authHeaders)
 
   try {
-    const [seriesRes, totalsRes, topPageRes, topReferrerRes, topDeviceRes] = await Promise.all([
+    const [seriesRes, totalsRes, topPageRes, countryRes, deviceRes, browserRes, osRes] = await Promise.all([
       query('/v1/query/web-analytics/visits/aggregate', { by: granularity }),
       query('/v1/query/web-analytics/visits/count', {}),
       query('/v1/query/web-analytics/visits/aggregate', { by: 'requestPath', limit: '1' }),
-      query('/v1/query/web-analytics/visits/aggregate', { by: 'referrerHostname', limit: '1' }),
-      query('/v1/query/web-analytics/visits/aggregate', { by: 'deviceType', limit: '1' }),
+      query('/v1/query/web-analytics/visits/aggregate', { by: 'country', limit: '5' }),
+      query('/v1/query/web-analytics/visits/aggregate', { by: 'deviceType', limit: '5' }),
+      query('/v1/query/web-analytics/visits/aggregate', { by: 'browserName', limit: '5' }),
+      query('/v1/query/web-analytics/visits/aggregate', { by: 'osName', limit: '5' }),
     ])
-    const responses = { seriesRes, totalsRes, topPageRes, topReferrerRes, topDeviceRes }
+    const responses = { seriesRes, totalsRes, topPageRes, countryRes, deviceRes, browserRes, osRes }
     const payloads = Object.fromEntries(
       await Promise.all(Object.entries(responses).map(async ([key, r]) => [key, await r.json()]))
     )
@@ -53,9 +64,8 @@ export default async function handler(req, res) {
     }
 
     const topPageRow = payloads.topPageRes.data?.[0]
-    const topReferrerRow = payloads.topReferrerRes.data?.[0]
-    const topDeviceRow = payloads.topDeviceRes.data?.[0]
     const totalPageviews = payloads.totalsRes?.data?.pageviews ?? 0
+    const totalVisitors = payloads.totalsRes?.data?.visitors ?? 0
 
     res.status(200).json({
       granularity,
@@ -64,21 +74,12 @@ export default async function handler(req, res) {
         pageviews: row.pageviews ?? 0,
         visitors: row.visitors ?? 0,
       })),
-      totals: {
-        pageviews: totalPageviews,
-        visitors: payloads.totalsRes?.data?.visitors ?? 0,
-      },
+      totals: { pageviews: totalPageviews, visitors: totalVisitors },
       topPage: topPageRow ? { path: topPageRow.requestPath, pageviews: topPageRow.pageviews } : null,
-      topReferrer: topReferrerRow
-        ? { hostname: topReferrerRow.referrerHostname || null, pageviews: topReferrerRow.pageviews }
-        : null,
-      topDevice: topDeviceRow
-        ? {
-            deviceType: topDeviceRow.deviceType,
-            pageviews: topDeviceRow.pageviews,
-            share: totalPageviews ? Math.round((topDeviceRow.pageviews / totalPageviews) * 100) : 0,
-          }
-        : null,
+      countries: toShareRows(payloads.countryRes.data || [], 'country', totalVisitors),
+      devices: toShareRows(payloads.deviceRes.data || [], 'deviceType', totalVisitors),
+      browsers: toShareRows(payloads.browserRes.data || [], 'browserName', totalVisitors),
+      operatingSystems: toShareRows(payloads.osRes.data || [], 'osName', totalVisitors),
     })
   } catch {
     res.status(502).json({ error: 'Không kết nối được tới Vercel Analytics.' })

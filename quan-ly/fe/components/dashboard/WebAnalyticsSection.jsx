@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Eye, Users, FileText, Smartphone, Share2 } from 'lucide-react'
+import { Eye, Users, FileText } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import StatCard from '../common/StatCard'
+import BreakdownPanel, { countryLabel } from './BreakdownPanel'
 import { getAnalyticsTimeseries } from '../../../../src/services/analyticsService'
 
 const GRANULARITY_OPTIONS = [
@@ -16,6 +17,11 @@ const METRIC_OPTIONS = [
 ]
 
 const DEVICE_LABELS = { desktop: 'Máy tính', mobile: 'Điện thoại', tablet: 'Máy tính bảng' }
+
+function flagOf(code) {
+  if (!code || code.length !== 2) return ''
+  return String.fromCodePoint(...[...code.toUpperCase()].map((c) => 127397 + c.charCodeAt(0)))
+}
 
 function formatDateLabel(iso, granularity) {
   const d = new Date(iso)
@@ -70,20 +76,6 @@ export default function WebAnalyticsSection() {
           label="Trang được xem nhiều nhất"
           value={loading || error ? na : data.topPage ? data.topPage.path : 'Chưa có dữ liệu'}
           hint={!loading && !error && data.topPage ? `${data.topPage.pageviews.toLocaleString('vi-VN')} lượt xem` : error}
-        />
-        <StatCard
-          tone="blue"
-          icon={Smartphone}
-          label="Thiết bị phổ biến nhất"
-          value={loading || error ? na : data.topDevice ? (DEVICE_LABELS[data.topDevice.deviceType] || data.topDevice.deviceType) : 'Chưa có dữ liệu'}
-          hint={!loading && !error && data.topDevice ? `${data.topDevice.share}% lượt xem` : error}
-        />
-        <StatCard
-          tone="accent"
-          icon={Share2}
-          label="Nguồn truy cập hàng đầu"
-          value={loading || error ? na : data.topReferrer ? (data.topReferrer.hostname || 'Truy cập trực tiếp') : 'Chưa có dữ liệu'}
-          hint={!loading && !error && data.topReferrer ? `${data.topReferrer.pageviews.toLocaleString('vi-VN')} lượt xem` : error}
         />
       </div>
 
@@ -142,6 +134,38 @@ export default function WebAnalyticsSection() {
           </ResponsiveContainer>
         )}
       </div>
+
+      {!loading && !error && (
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <BreakdownPanel
+            title="Quốc gia"
+            rows={data.countries}
+            renderLabel={(code) => (
+              <>
+                <span>{flagOf(code)}</span> {countryLabel(code)}
+              </>
+            )}
+          />
+          <BreakdownPanel
+            tabs={[
+              {
+                id: 'devices',
+                label: 'Thiết bị',
+                rows: data.devices.map((r) => ({ ...r, label: DEVICE_LABELS[r.label] || (r.label === 'Others' ? 'Khác' : r.label) })),
+              },
+              {
+                id: 'browsers',
+                label: 'Trình duyệt',
+                rows: data.browsers.map((r) => ({ ...r, label: r.label === 'Others' ? 'Khác' : r.label })),
+              },
+            ]}
+          />
+          <BreakdownPanel
+            title="Hệ điều hành"
+            rows={data.operatingSystems.map((r) => ({ ...r, label: r.label === 'Others' ? 'Khác' : r.label }))}
+          />
+        </div>
+      )}
     </div>
   )
 }
