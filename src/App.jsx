@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import Layout from './components/layout/Layout'
 import ScrollToTop from './components/ScrollToTop'
 import HomePage from './pages/HomePage'
@@ -43,6 +44,7 @@ function App() {
         />
       </Route>
     </Routes>
+    <Analytics />
     </>
   )
 }
